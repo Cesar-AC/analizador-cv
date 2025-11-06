@@ -239,7 +239,28 @@ async function loadHistory() {
     const data = await response.json();
 
     if (data.success && data.files && data.files.length > 0) {
-      historyList.innerHTML = data.files.map(file => {
+      // Para cada archivo completado, verificar si tiene CV mejorado
+      const filesWithImprovedStatus = await Promise.all(
+        data.files.map(async (file) => {
+          if (file.status === 'completed') {
+            try {
+              const improvedResponse = await fetch(`${API_BASE_URL}/files/${file.id}/improved-status`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+              const improvedData = await improvedResponse.json();
+              file.hasImprovedCV = improvedData.success && improvedData.status === 'completed';
+              file.improvedProcessingTime = improvedData.processing_time_seconds;
+            } catch (error) {
+              file.hasImprovedCV = false;
+            }
+          }
+          return file;
+        })
+      );
+
+      historyList.innerHTML = filesWithImprovedStatus.map(file => {
         const statusColors = {
           pending: '#ffa500',
           processing: '#2196f3',
@@ -296,6 +317,17 @@ async function loadHistory() {
               <button onclick="viewResults('${file.id}')" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
                 <i class="fas fa-chart-line"></i>
                 Ver Resultados
+              </button>
+            ` : ''}
+            ${file.hasImprovedCV ? `
+              <button onclick="viewImprovedResults('${file.id}')" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; position: relative;">
+                <i class="fas fa-sparkles"></i>
+                CV Mejorado
+                ${file.improvedProcessingTime ? `
+                  <span style="display: block; font-size: 0.75rem; opacity: 0.9; margin-top: 2px;">
+                    ${formatProcessingTime(file.improvedProcessingTime)}
+                  </span>
+                ` : ''}
               </button>
             ` : ''}
           </div>
@@ -380,6 +412,35 @@ function formatDate(dateString) {
 // Función para ver resultados del análisis
 function viewResults(cvId) {
   window.location.href = `cv-results.html?id=${cvId}`;
+}
+
+// Función para ver resultados del CV mejorado
+function viewImprovedResults(cvId) {
+  window.location.href = `cv-results.html?id=${cvId}&openImproved=true`;
+}
+
+// Función para formatear el tiempo de procesamiento
+function formatProcessingTime(seconds) {
+  // Si el valor parece ser un timestamp Unix (mayor a 1 año en segundos)
+  if (seconds > 31536000) {
+    return 'Error en cálculo';
+  }
+  
+  if (seconds < 60) {
+    return `${seconds} seg`;
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return remainingSeconds > 0 
+      ? `${minutes}m ${remainingSeconds}s` 
+      : `${minutes} min`;
+  } else {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return minutes > 0 
+      ? `${hours}h ${minutes}m` 
+      : `${hours} horas`;
+  }
 }
 
 // Función para descargar CV

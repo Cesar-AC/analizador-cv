@@ -720,6 +720,10 @@
                         <i class="fas fa-rocket"></i> Mejorar mi CV
                         <span class="button-subtitle">Responde preguntas personalizadas</span>
                     </button>
+                    <button id="viewImprovedButton" onclick="openImprovedResultsModal()" class="view-improved-button" style="display: none;">
+                        <i class="fas fa-sparkles"></i> Ver Resultados
+                        <span class="button-subtitle">CV Mejorado</span>
+                    </button>
                 </div>
             </div>
 
@@ -895,6 +899,9 @@
                 displayResults(cv, isAdmin);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('results-content').style.display = 'block';
+
+                // Verificar estado del CV mejorado
+                await checkImprovedCvStatus();
 
             } catch (error) {
                 console.error('Error completo:', error);
@@ -1271,14 +1278,14 @@
                             </div>
                         </div>
 
-                        <div class="template-card" data-template="stanford" onclick="selectTemplate('stanford')">
-                            <div class="template-icon">🚀</div>
-                            <h4>Stanford Innovative</h4>
-                            <p>Formato innovador y creativo. Ideal para startups, diseño y roles creativos.</p>
+                        <div class="template-card" data-template="oxford" onclick="selectTemplate('oxford')">
+                            <div class="template-icon">🎓</div>
+                            <h4>Oxford Academic</h4>
+                            <p>Formato académico británico elegante. Ideal para investigación, docencia y roles académicos.</p>
                             <div class="template-features">
-                                <span>✓ Creativo</span>
-                                <span>✓ Innovador</span>
-                                <span>✓ Visual</span>
+                                <span>✓ Elegante</span>
+                                <span>✓ Académico</span>
+                                <span>✓ Profesional</span>
                             </div>
                         </div>
                     </div>
@@ -1452,19 +1459,19 @@
             const templateNames = {
                 'harvard': 'Harvard Classic',
                 'mit': 'MIT Technical',
-                'stanford': 'Stanford Innovative'
+                'oxford': 'Oxford Academic'
             };
 
             const templateDescriptions = {
                 'harvard': 'Formato tradicional y elegante',
                 'mit': 'Diseño moderno y técnico',
-                'stanford': 'Formato innovador y creativo'
+                'oxford': 'Formato académico británico elegante'
             };
 
             const templateIcons = {
                 'harvard': '📋',
                 'mit': '💻',
-                'stanford': '🚀'
+                'oxford': '🎓'
             };
 
             const answeredCount = answers.filter(a => a.answer && a.answer.trim() !== '').length;
@@ -1824,8 +1831,40 @@
             }, 5000); // Cada 5 segundos
         }
 
+        function formatProcessingTime(seconds) {
+            // Si el valor parece ser un timestamp Unix (mayor a 1 año en segundos)
+            if (seconds > 31536000) {
+                return 'Error en cálculo';
+            }
+            
+            if (seconds < 60) {
+                return `${seconds} segundos`;
+            } else if (seconds < 3600) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return remainingSeconds > 0 
+                    ? `${minutes} min ${remainingSeconds} seg` 
+                    : `${minutes} minutos`;
+            } else {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                return minutes > 0 
+                    ? `${hours}h ${minutes}min` 
+                    : `${hours} horas`;
+            }
+        }
+
         function showSuccessModal(result) {
             const container = document.getElementById('questionContainer');
+            
+            console.log('📊 Datos del CV mejorado recibidos:', result);
+            
+            // Extraer datos
+            const template = result.selected_template || 'harvard';
+            const processingTime = result.processing_time_seconds || result.processing_time || 0;
+            const pdfUrl = result.improved_cv_url;
+            const cvData = result.improved_cv_data;
+            
             container.innerHTML = `
                 <div class="success-modal">
                     <div class="success-icon">🎉</div>
@@ -1834,17 +1873,34 @@
                     <div class="success-details">
                         <div class="detail-item">
                             <strong>Formato utilizado:</strong>
-                            <span>${result.selected_template.toUpperCase()}</span>
+                            <span>${template.toUpperCase()}</span>
                         </div>
                         <div class="detail-item">
                             <strong>Tiempo de procesamiento:</strong>
-                            <span>${result.processing_time} segundos</span>
+                            <span>${formatProcessingTime(processingTime)}</span>
                         </div>
+                        ${cvData ? `
+                        <div class="detail-item">
+                            <strong>Educación:</strong>
+                            <span>${cvData.education?.length || 0} elementos</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Experiencia:</strong>
+                            <span>${cvData.experience?.length || 0} elementos</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Habilidades:</strong>
+                            <span>${Object.keys(cvData.skills || {}).length} categorías</span>
+                        </div>
+                        ` : ''}
                     </div>
 
                     <div class="success-actions">
-                        <button onclick="downloadImprovedCV('${result.improved_cv_url}')" class="download-button">
+                        <button onclick="downloadImprovedCV('${pdfUrl}')" class="download-button">
                             <i class="fas fa-download"></i> Descargar CV Mejorado
+                        </button>
+                        <button onclick="viewImprovedData()" class="view-data-button">
+                            <i class="fas fa-eye"></i> Ver Datos Estructurados
                         </button>
                         <button onclick="closeImprovementModal(); window.location.reload();" class="reload-button">
                             <i class="fas fa-redo"></i> Ver Análisis Original
@@ -1931,6 +1987,207 @@
             window.open(url, '_blank');
         }
 
+        // Nueva función para ver datos estructurados del CV mejorado
+        function viewImprovedData() {
+            // Obtener los datos del resultado almacenados
+            const cvId = new URLSearchParams(window.location.search).get('id');
+            const token = getAuthToken();
+            
+            fetch(`${API_BASE_URL}/files/${cvId}/improved-status`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.improved_cv_data) {
+                    showImprovedDataModal(result.improved_cv_data);
+                } else {
+                    alert('No hay datos estructurados disponibles');
+                }
+            })
+            .catch(error => {
+                console.error('Error al obtener datos:', error);
+                alert('Error al cargar datos estructurados');
+            });
+        }
+
+        function showImprovedDataModal(cvData) {
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <div class="improved-data-modal">
+                    <h3>📊 Datos del CV Mejorado</h3>
+                    
+                    ${cvData.header ? `
+                    <div class="data-section">
+                        <h4>📋 Información Personal</h4>
+                        <ul>
+                            <li><strong>Nombre:</strong> ${cvData.header.NAME || 'N/A'}</li>
+                            <li><strong>Email:</strong> ${cvData.header.EMAIL || 'N/A'}</li>
+                            <li><strong>Teléfono:</strong> ${cvData.header.PHONE || 'N/A'}</li>
+                            <li><strong>Ubicación:</strong> ${cvData.header.LOCATION || 'N/A'}</li>
+                        </ul>
+                    </div>
+                    ` : ''}
+                    
+                    ${cvData.summary ? `
+                    <div class="data-section">
+                        <h4>💼 Resumen Profesional</h4>
+                        <p>${cvData.summary}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${cvData.education?.length ? `
+                    <div class="data-section">
+                        <h4>🎓 Educación (${cvData.education.length})</h4>
+                        ${cvData.education.map(edu => `
+                            <div class="data-item">
+                                <strong>${edu.DEGREE}</strong><br>
+                                ${edu.INSTITUTION} - ${edu.LOCATION || ''}<br>
+                                <em>${edu.DATE_RANGE}</em>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                    
+                    ${cvData.experience?.length ? `
+                    <div class="data-section">
+                        <h4>💡 Experiencia (${cvData.experience.length})</h4>
+                        ${cvData.experience.map(exp => `
+                            <div class="data-item">
+                                <strong>${exp.ROLE}</strong><br>
+                                ${exp.COMPANY} - ${exp.LOCATION || ''}<br>
+                                <em>${exp.DATE_RANGE}</em><br>
+                                ${exp.ACHIEVEMENTS?.length ? `
+                                    <ul>
+                                        ${exp.ACHIEVEMENTS.slice(0, 2).map(a => `<li>${a}</li>`).join('')}
+                                    </ul>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                    
+                    ${cvData.skills ? `
+                    <div class="data-section">
+                        <h4>🚀 Habilidades</h4>
+                        ${Object.entries(cvData.skills).map(([category, skills]) => 
+                            skills?.length ? `
+                                <div class="skill-category">
+                                    <strong>${category}:</strong>
+                                    <div class="skill-tags">
+                                        ${skills.slice(0, 5).map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                                    </div>
+                                </div>
+                            ` : ''
+                        ).join('')}
+                    </div>
+                    ` : ''}
+                    
+                    ${cvData.warnings?.length ? `
+                    <div class="data-section warnings-section">
+                        <h4>⚠️ Advertencias</h4>
+                        <ul>
+                            ${cvData.warnings.map(w => `<li>${w}</li>`).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+                    
+                    <button onclick="showSuccessModal({
+                        selected_template: '${cvData.template}',
+                        processing_time_seconds: 0,
+                        improved_cv_url: '${cvData.pdf?.url || ''}',
+                        improved_cv_data: null
+                    })" class="back-button">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                </div>
+                
+                <style>
+                    .improved-data-modal {
+                        padding: 30px;
+                        max-height: 70vh;
+                        overflow-y: auto;
+                    }
+                    
+                    .data-section {
+                        background: #f9f9f9;
+                        padding: 20px;
+                        border-radius: 8px;
+                        margin-bottom: 20px;
+                        border-left: 4px solid #4CAF50;
+                    }
+                    
+                    .data-section h4 {
+                        margin-top: 0;
+                        color: #333;
+                    }
+                    
+                    .data-item {
+                        background: white;
+                        padding: 15px;
+                        border-radius: 6px;
+                        margin-bottom: 10px;
+                    }
+                    
+                    .skill-category {
+                        margin-bottom: 15px;
+                    }
+                    
+                    .skill-tags {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                        margin-top: 8px;
+                    }
+                    
+                    .skill-tag {
+                        background: #e3f2fd;
+                        color: #1976d2;
+                        padding: 6px 12px;
+                        border-radius: 16px;
+                        font-size: 14px;
+                    }
+                    
+                    .warnings-section {
+                        border-left-color: #ff9800;
+                        background: #fff3e0;
+                    }
+                    
+                    .back-button {
+                        background: #666;
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        margin-top: 20px;
+                    }
+                    
+                    .back-button:hover {
+                        background: #555;
+                    }
+                    
+                    .view-data-button {
+                        background: #2196F3;
+                        color: white;
+                        border: none;
+                        padding: 15px 30px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        transition: background 0.3s;
+                    }
+                    
+                    .view-data-button:hover {
+                        background: #1976D2;
+                    }
+                </style>
+            `;
+        }
+
         function showTimeoutMessage() {
             alert('La generación está tomando más tiempo del esperado. Recibirás una notificación cuando esté lista.');
             closeImprovementModal();
@@ -1959,5 +2216,915 @@
         // Cargar resultados al iniciar
         loadResults();
     </script>
+
+    <!-- Modal de Resultados del CV Mejorado -->
+    <div id="improved-results-modal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeImprovedResultsModal()"></div>
+        <div class="modal-box modal-large">
+            <button onclick="closeImprovedResultsModal()" class="close-modal-btn">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h2 class="modal-title">
+                <i class="fas fa-sparkles"></i> Resultados del CV Mejorado
+            </h2>
+            
+            <div class="results-tabs">
+                <button class="results-tab active" onclick="switchResultsTab('preview')">
+                    <i class="fas fa-file-pdf"></i> Vista Previa
+                </button>
+                <button class="results-tab" onclick="switchResultsTab('structure')">
+                    <i class="fas fa-sitemap"></i> Estructura
+                </button>
+                <button class="results-tab" onclick="switchResultsTab('comparison')">
+                    <i class="fas fa-balance-scale"></i> Comparación
+                </button>
+            </div>
+
+            <div id="results-tab-preview" class="results-tab-content active">
+                <div class="pdf-preview-box">
+                    <iframe id="improved-pdf-frame" src="" width="100%" height="600px" frameborder="0"></iframe>
+                </div>
+                <div class="preview-actions-box">
+                    <a id="download-improved-pdf" href="#" download class="btn btn-primary btn-large">
+                        <i class="fas fa-download"></i> Descargar PDF Mejorado
+                    </a>
+                </div>
+            </div>
+
+            <div id="results-tab-structure" class="results-tab-content">
+                <div id="structure-content" class="structure-grid"></div>
+            </div>
+
+            <div id="results-tab-comparison" class="results-tab-content">
+                <div id="comparison-content" class="comparison-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Modal Estilos */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 998;
+        }
+
+        .modal-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            z-index: 999;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-large {
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f44336;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .close-modal-btn:hover {
+            background: #d32f2f;
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            margin: 0 0 30px 0;
+            font-size: 28px;
+            color: #333;
+            text-align: center;
+        }
+
+        .results-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .results-tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .results-tab:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .results-tab.active {
+            color: #4CAF50;
+            border-bottom-color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .results-tab-content {
+            display: none;
+        }
+
+        .results-tab-content.active {
+            display: block;
+        }
+
+        .pdf-preview-box {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .preview-actions-box {
+            text-align: center;
+        }
+
+        .btn-large {
+            padding: 15px 40px;
+            font-size: 18px;
+        }
+
+        .structure-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .structure-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .structure-card h3 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .structure-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .structure-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .structure-list li:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .comparison-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .comparison-card.original {
+            border-color: #ff9800;
+        }
+
+        .comparison-card.improved {
+            border-color: #4CAF50;
+        }
+
+        .comparison-card h3 {
+            margin: 0 0 20px 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid;
+        }
+
+        .comparison-card.original h3 {
+            color: #ff9800;
+            border-color: #ff9800;
+        }
+
+        .comparison-card.improved h3 {
+            color: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .comparison-item {
+            margin: 15px 0;
+        }
+
+        .comparison-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .comparison-item span {
+            display: block;
+            color: #333;
+        }
+
+        .view-improved-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .view-improved-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .view-improved-button i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .button-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+    </style>
+
+    <script>
+        // Variables globales para datos del CV mejorado
+        let improvedCvData = null;
+
+        // Función para abrir el modal de resultados
+        async function openImprovedResultsModal() {
+            const modal = document.getElementById('improved-results-modal');
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+
+            // Cargar datos del CV mejorado
+            await loadImprovedCvData();
+        }
+
+        // Función para cerrar el modal
+        function closeImprovedResultsModal() {
+            const modal = document.getElementById('improved-results-modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Función para cambiar de tab
+        function switchResultsTab(tabName) {
+            // Actualizar tabs
+            document.querySelectorAll('.results-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.closest('.results-tab').classList.add('active');
+
+            // Actualizar contenido
+            document.querySelectorAll('.results-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`results-tab-${tabName}`).classList.add('active');
+        }
+
+        // Función para cargar datos del CV mejorado
+        async function loadImprovedCvData() {
+            try {
+                const cvId = getCvIdFromURL();
+                const token = getAuthToken();
+
+                const response = await fetch(`${API_BASE_URL}/files/${cvId}/improved-status`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.status === 'completed') {
+                    improvedCvData = {
+                        url: data.improved_cv_url,
+                        data: data.improved_cv_data,
+                        template: data.selected_template,
+                        time: data.processing_time_seconds
+                    };
+
+                    // Actualizar vista previa del PDF
+                    const pdfFrame = document.getElementById('improved-pdf-frame');
+                    const downloadBtn = document.getElementById('download-improved-pdf');
+                    
+                    pdfFrame.src = data.improved_cv_url;
+                    downloadBtn.href = data.improved_cv_url;
+
+                    // Actualizar header del modal con información adicional
+                    updateModalHeader(data);
+
+                    // Renderizar estructura
+                    renderStructure(data.improved_cv_data);
+
+                    // Renderizar comparación
+                    renderComparison(data.improved_cv_data);
+                }
+            } catch (error) {
+                console.error('Error al cargar datos del CV mejorado:', error);
+            }
+        }
+
+        // Función para actualizar el header del modal con información adicional
+        function updateModalHeader(data) {
+            const modalHeader = document.querySelector('.improved-results-modal h2');
+            if (modalHeader && data.selected_template && data.processing_time_seconds) {
+                const templateNames = {
+                    'harvard': 'Harvard Classic',
+                    'mit': 'MIT Technical',
+                    'oxford': 'Oxford Academic'
+                };
+                
+                modalHeader.innerHTML = `
+                    Resultados del CV Mejorado
+                    <div style="font-size: 14px; font-weight: normal; color: #666; margin-top: 8px;">
+                        <span style="background: #4CAF50; color: white; padding: 4px 12px; border-radius: 12px; margin-right: 10px;">
+                            📄 ${templateNames[data.selected_template] || data.selected_template}
+                        </span>
+                        <span style="background: #2196F3; color: white; padding: 4px 12px; border-radius: 12px;">
+                            ⏱️ ${formatProcessingTime(data.processing_time_seconds)}
+                        </span>
+                    </div>
+                `;
+            }
+        }
+
+        // Función para renderizar la estructura
+        function renderStructure(cvData) {
+            if (!cvData) return;
+
+            const container = document.getElementById('structure-content');
+            
+            let html = '';
+
+            // Header
+            if (cvData.header) {
+                html += `
+                    <div class="structure-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                        <h3><i class="fas fa-user"></i> Información Personal</h3>
+                        <ul class="structure-list">
+                            <li><strong>Nombre:</strong> ${cvData.header.NAME || 'N/A'}</li>
+                            <li><strong>Email:</strong> ${cvData.header.EMAIL || 'N/A'}</li>
+                            <li><strong>Teléfono:</strong> ${cvData.header.PHONE || 'N/A'}</li>
+                            <li><strong>Ubicación:</strong> ${cvData.header.LOCATION || 'N/A'}</li>
+                        </ul>
+                    </div>
+                `;
+            }
+
+            // Resumen
+            if (cvData.summary) {
+                html += `
+                    <div class="structure-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <h3><i class="fas fa-quote-left"></i> Resumen Profesional</h3>
+                        <p>${cvData.summary}</p>
+                    </div>
+                `;
+            }
+
+            // Educación
+            if (cvData.education && cvData.education.length > 0) {
+                html += `
+                    <div class="structure-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <h3><i class="fas fa-graduation-cap"></i> Educación</h3>
+                        <ul class="structure-list">
+                            ${cvData.education.map(edu => `
+                                <li>
+                                    <strong>${edu.DEGREE}</strong><br>
+                                    ${edu.INSTITUTION} - ${edu.DATE_RANGE}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            // Experiencia
+            if (cvData.experience && cvData.experience.length > 0) {
+                html += `
+                    <div class="structure-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <h3><i class="fas fa-briefcase"></i> Experiencia Laboral</h3>
+                        ${cvData.experience.map(exp => `
+                            <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.3);">
+                                <div style="font-weight: bold; font-size: 16px;">${exp.ROLE}</div>
+                                <div style="color: rgba(255,255,255,0.9); margin: 5px 0;">
+                                    ${exp.COMPANY} | ${exp.DATE_RANGE}
+                                </div>
+                                ${exp.ACHIEVEMENTS && exp.ACHIEVEMENTS.length > 0 ? `
+                                    <ul style="margin-top: 10px; padding-left: 20px;">
+                                        ${exp.ACHIEVEMENTS.map(ach => `
+                                            <li style="margin: 5px 0; color: rgba(255,255,255,0.95);">${ach}</li>
+                                        `).join('')}
+                                    </ul>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // Habilidades
+            if (cvData.skills) {
+                const skillsHtml = Object.entries(cvData.skills)
+                    .filter(([key, value]) => value && value.length > 0)
+                    .map(([category, skills]) => `
+                        <div style="margin-bottom: 15px;">
+                            <strong style="font-size: 15px; display: block; margin-bottom: 8px;">
+                                ${category}:
+                            </strong>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                ${skills.map(skill => `
+                                    <span style="background: rgba(255,255,255,0.3); padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                                        ${skill}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+
+                html += `
+                    <div class="structure-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <h3><i class="fas fa-tools"></i> Habilidades (${Object.keys(cvData.skills).length} categorías)</h3>
+                        ${skillsHtml}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Función para renderizar la comparación
+        function renderComparison(improvedData) {
+            const container = document.getElementById('comparison-content');
+            
+            // Obtener datos originales
+            const originalData = window.cvAnalysisData;
+
+            // Calcular métricas
+            const originalEducation = originalData?.educacion?.length || 0;
+            const improvedEducation = improvedData.education?.length || 0;
+            
+            const originalExperience = originalData?.experiencia?.length || 0;
+            const improvedExperience = improvedData.experience?.length || 0;
+            
+            const originalSkills = originalData?.habilidades_detectadas?.length || 0;
+            const improvedSkills = Object.values(improvedData.skills || {}).flat().length || 0;
+
+            let html = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                    <div class="comparison-card original" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 12px;">
+                        <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-file-alt"></i> CV Original
+                        </h3>
+                        <div class="comparison-item" style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>Puntuación:</strong>
+                            <span style="font-size: 20px; font-weight: bold;">${originalData?.meta?.puntaje_total || 'N/A'}/100</span>
+                        </div>
+                        <div class="comparison-item" style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>Secciones detectadas:</strong>
+                            <span>${originalData?.meta?.secciones_detectadas?.length || 0}</span>
+                        </div>
+                        <div class="comparison-item" style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>Educación:</strong>
+                            <span>${originalEducation} elementos</span>
+                        </div>
+                        <div class="comparison-item" style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>Experiencia:</strong>
+                            <span>${originalExperience} elementos</span>
+                        </div>
+                        <div class="comparison-item" style="padding: 12px 0;">
+                            <strong>Habilidades:</strong>
+                            <span>${originalSkills} detectadas</span>
+                        </div>
+                    </div>
+
+                    <div class="comparison-card improved" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 25px; border-radius: 12px;">
+                        <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-sparkles"></i> CV Mejorado
+                        </h3>
+                        <div class="comparison-item" style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>Template:</strong>
+                            <span style="background: rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 12px; font-weight: bold;">
+                                ${improvedData.template?.toUpperCase() || 'N/A'}
+                            </span>
+                        </div>
+                        <div class="comparison-item" style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>Tiempo de procesamiento:</strong>
+                            <span>${formatProcessingTime(improvedCvData?.time || 0)}</span>
+                        </div>
+                        <div class="comparison-item" style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>Educación:</strong>
+                            <span>${improvedEducation} elementos ${improvedEducation > originalEducation ? '📈' : improvedEducation < originalEducation ? '📉' : '➡️'}</span>
+                        </div>
+                        <div class="comparison-item" style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>Experiencia:</strong>
+                            <span>${improvedExperience} elementos ${improvedExperience > originalExperience ? '📈' : improvedExperience < originalExperience ? '📉' : '➡️'}</span>
+                        </div>
+                        <div class="comparison-item" style="padding: 12px 0;">
+                            <strong>Habilidades:</strong>
+                            <span>${improvedSkills} organizadas ${improvedSkills > originalSkills ? '📈' : improvedSkills < originalSkills ? '📉' : '➡️'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 25px; border-radius: 12px;">
+                    <h3 style="margin-bottom: 15px;"><i class="fas fa-chart-line"></i> Mejoras Aplicadas</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            ✅ Formato profesional ${improvedData.template?.toUpperCase()}
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            ✅ Estructura optimizada y organizada
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            ✅ Habilidades categorizadas en ${Object.keys(improvedData.skills || {}).length} grupos
+                        </li>
+                        ${improvedData.summary ? `
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            ✅ Resumen profesional agregado
+                        </li>
+                        ` : ''}
+                        <li style="padding: 10px 0;">
+                            ✅ Diseño profesional y moderno aplicado
+                        </li>
+                    </ul>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Verificar y mostrar estado del CV mejorado
+        async function checkImprovedCvStatus() {
+            try {
+                const cvId = getCvIdFromURL();
+                const token = getAuthToken();
+
+                const response = await fetch(`${API_BASE_URL}/files/${cvId}/improved-status`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                console.log('Estado del CV mejorado:', data);
+
+                const viewImprovedBtn = document.getElementById('viewImprovedButton');
+                const improveCvBtn = document.getElementById('improveCvButton');
+
+                if (data.success && data.status === 'completed' && data.improved_cv_url) {
+                    // Mostrar botón "Ver Resultados"
+                    viewImprovedBtn.style.display = 'inline-flex';
+                    
+                    // Agregar badge al botón "Mejorar CV"
+                    if (improveCvBtn && !improveCvBtn.querySelector('.improved-badge')) {
+                        const badge = document.createElement('span');
+                        badge.className = 'improved-badge';
+                        badge.innerHTML = '✓';
+                        badge.title = 'CV ya mejorado - Ver resultados';
+                        improveCvBtn.appendChild(badge);
+                    }
+
+                    // Agregar notificación en el header
+                    addImprovedNotification();
+                } else if (data.status === 'pending' || data.status === 'processing') {
+                    // Mostrar que está en proceso
+                    if (improveCvBtn) {
+                        const processingBadge = document.createElement('span');
+                        processingBadge.className = 'processing-badge';
+                        processingBadge.innerHTML = '⏳';
+                        processingBadge.title = 'Generando CV mejorado...';
+                        improveCvBtn.appendChild(processingBadge);
+                    }
+                    
+                    // Iniciar polling para actualizar cuando termine
+                    startImprovedPolling();
+                }
+            } catch (error) {
+                console.error('Error al verificar estado del CV mejorado:', error);
+            }
+        }
+
+        // Agregar notificación visual de CV mejorado disponible
+        function addImprovedNotification() {
+            const resultsHeader = document.querySelector('.results-header');
+            if (resultsHeader && !document.getElementById('improved-notification')) {
+                const notification = document.createElement('div');
+                notification.id = 'improved-notification';
+                notification.className = 'improved-notification';
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Tu CV mejorado está disponible</span>
+                        <button onclick="openImprovedResultsModal()" class="notification-btn">
+                            Ver ahora
+                        </button>
+                    </div>
+                `;
+                resultsHeader.insertAdjacentElement('afterend', notification);
+            }
+        }
+
+        // Polling para CVs en proceso de mejora
+        function startImprovedPolling() {
+            let attempts = 0;
+            const maxAttempts = 40; // 40 intentos = 2 minutos (3 seg cada uno)
+            
+            const pollInterval = setInterval(async () => {
+                attempts++;
+                
+                try {
+                    const cvId = getCvIdFromURL();
+                    const token = getAuthToken();
+
+                    const response = await fetch(`${API_BASE_URL}/files/${cvId}/improved-status`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success && data.status === 'completed') {
+                        clearInterval(pollInterval);
+                        
+                        // Remover badge de procesamiento
+                        const processingBadge = document.querySelector('.processing-badge');
+                        if (processingBadge) {
+                            processingBadge.remove();
+                        }
+
+                        // Mostrar botón "Ver Resultados"
+                        document.getElementById('viewImprovedButton').style.display = 'inline-flex';
+                        
+                        // Agregar notificación
+                        addImprovedNotification();
+                        
+                        // Mostrar notificación de éxito
+                        showToast('¡Tu CV mejorado está listo! 🎉', 'success');
+                    } else if (data.status === 'failed') {
+                        clearInterval(pollInterval);
+                        showToast('Error al generar CV mejorado', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error en polling:', error);
+                }
+
+                // Timeout después de max intentos
+                if (attempts >= maxAttempts) {
+                    clearInterval(pollInterval);
+                    showToast('La generación está tomando más tiempo del esperado', 'info');
+                }
+            }, 3000); // Cada 3 segundos
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        // Llamar a checkImprovedCvStatus al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            checkImprovedCvStatus();
+            
+            // Verificar si se debe abrir el modal del CV mejorado automáticamente
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('openImproved') === 'true') {
+                // Esperar un poco para que se carguen los datos
+                setTimeout(() => {
+                    openImprovedResultsModal();
+                }, 1000);
+            }
+        });
+    </script>
+
+    <style>
+        /* Badge para botón de Mejorar CV */
+        .improved-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #4CAF50;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .processing-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #FF9800;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(76, 175, 80, 0.6);
+            }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notificación de CV mejorado disponible */
+        .improved-notification {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .notification-content i {
+            font-size: 28px;
+        }
+
+        .notification-content span {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .notification-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .notification-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            color: #333;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10000;
+            transition: all 0.3s ease-out;
+            font-weight: 500;
+        }
+
+        .toast.show {
+            bottom: 30px;
+        }
+
+        .toast-success {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .toast-error {
+            border-left: 4px solid #f44336;
+        }
+
+        .toast-info {
+            border-left: 4px solid #2196F3;
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        .toast-success i {
+            color: #4CAF50;
+        }
+
+        .toast-error i {
+            color: #f44336;
+        }
+
+        .toast-info i {
+            color: #2196F3;
+        }
+
+        /* Asegurar que los botones tengan position: relative para los badges */
+        .improve-cv-button {
+            position: relative;
+        }
+    </style>
 </body>
 </html>

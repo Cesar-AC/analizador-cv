@@ -177,6 +177,9 @@ router.post('/upload', verifyAuth, upload.single('cv'), async (req, res) => {
       // Preparar los datos para n8n usando FormData
       const formData = new FormData();
       
+      // Agregar el action para routing en n8n
+      formData.append('action', 'analyze');
+      
       // Agregar el PDF como archivo
       formData.append('pdf', fileBuffer, {
         filename: sanitizedFileName,
@@ -198,39 +201,9 @@ router.post('/upload', verifyAuth, upload.single('cv'), async (req, res) => {
         headers: formData.getHeaders()
       })
       .then(async (response) => {
-        console.log('📥 Respuesta de n8n recibida:', response.status);
+        console.log('📥 Respuesta de n8n recibida (análisis):', response.status, response.statusText);
         
-        if (response.ok) {
-          const result = await response.json();
-          console.log('✅ Análisis completado por n8n:', result);
-          
-          // Extraer el puntaje total del análisis
-          // El resultado puede venir como array o como objeto directo
-          let score = 0;
-          let analysisData = result;
-          
-          if (Array.isArray(result) && result.length > 0) {
-            score = result[0]?.meta?.puntaje_total || 0;
-            analysisData = result[0];
-          } else if (result.meta) {
-            score = result.meta.puntaje_total || 0;
-          }
-          
-          console.log('📊 Puntaje extraído:', score);
-          
-          // Actualizar el estado, puntuación y análisis completo en la BD
-          await supabaseAdmin
-            .from('curriculums')
-            .update({
-              status: 'completed',
-              score: score,
-              analysis_result: analysisData, // Guardar el análisis (sin array envolvente)
-              analyzed_at: new Date().toISOString()
-            })
-            .eq('id', dbData.id);
-          
-          console.log(`✅ CV ${dbData.id} actualizado con puntuación: ${score}`);
-        } else {
+        if (!response.ok) {
           const errorText = await response.text();
           console.error('❌ Error en respuesta de n8n:', response.status, errorText);
           // Marcar como fallido
@@ -238,11 +211,64 @@ router.post('/upload', verifyAuth, upload.single('cv'), async (req, res) => {
             .from('curriculums')
             .update({ status: 'failed' })
             .eq('id', dbData.id);
+          return;
+        }
+        
+        // Parsear respuesta JSON
+        let result;
+        try {
+          result = await response.json();
+          console.log('✅ JSON parseado correctamente. Tipo:', Array.isArray(result) ? 'array' : 'object');
+        } catch (e) {
+          console.error('❌ Error al parsear JSON de n8n:', e.message);
+          await supabaseAdmin
+            .from('curriculums')
+            .update({ status: 'failed' })
+            .eq('id', dbData.id);
+          return;
+        }
+        
+        // Extraer datos del análisis
+        let score = 0;
+        let analysisData = result;
+        
+        // n8n envía un array con el resultado
+        if (Array.isArray(result) && result.length > 0) {
+          analysisData = result[0];
+          score = analysisData?.meta?.puntaje_total || 0;
+          console.log('📊 Datos extraídos del array:', {
+            puntaje: score,
+            secciones: analysisData?.meta?.secciones_detectadas?.length || 0
+          });
+        } else if (result.meta) {
+          // O puede venir como objeto directo
+          score = result.meta.puntaje_total || 0;
+          console.log('📊 Datos extraídos del objeto:', { puntaje: score });
+        } else {
+          console.warn('⚠️ Formato inesperado de respuesta n8n');
+        }
+        
+        console.log('💾 Actualizando BD con puntaje:', score);
+        
+        // Actualizar en BD
+        const { error: updateError } = await supabaseAdmin
+          .from('curriculums')
+          .update({
+            status: 'completed',
+            score: score,
+            analysis_result: analysisData,
+            analyzed_at: new Date().toISOString()
+          })
+          .eq('id', dbData.id);
+        
+        if (updateError) {
+          console.error('❌ Error al actualizar BD:', updateError);
+        } else {
+          console.log(`✅ CV ${dbData.id} completado. Puntaje: ${score}/100`);
         }
       })
       .catch(async (error) => {
-        console.error('❌ Error al enviar a n8n:', error.message);
-        // Marcar como fallido
+        console.error('❌ Error fatal en análisis:', error.message);
         await supabaseAdmin
           .from('curriculums')
           .update({ status: 'failed' })
@@ -576,11 +602,11 @@ router.post('/files/:id/generate-improved', verifyAuth, async (req, res) => {
     const { template } = req.body;
 
     // Validar que el template sea válido
-    const validTemplates = ['harvard', 'mit', 'stanford'];
+    const validTemplates = ['harvard', 'mit', 'oxford'];
     if (!template || !validTemplates.includes(template)) {
       return res.status(400).json({
         success: false,
-        message: 'Template inválido. Debe ser: harvard, mit o stanford'
+        message: 'Template inválido. Debe ser: harvard, mit u oxford'
       });
     }
 
@@ -656,23 +682,112 @@ router.post('/files/:id/generate-improved', verifyAuth, async (req, res) => {
       throw new Error('N8N_WEBHOOK_URL no configurada');
     }
 
-    // Enviar sin esperar respuesta (fire and forget)
+    console.log('📤 Enviando CV a n8n para mejora:', webhookUrl);
+
+    // Responder inmediatamente al frontend
+    res.json({
+      success: true,
+      message: 'Generación de CV mejorado iniciada',
+      estimated_time: '2-3 minutos',
+      template: template
+    });
+
+    // Enviar a n8n y procesar respuesta en segundo plano (IGUAL QUE ANÁLISIS)
     fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(n8nPayload)
-    }).catch(err => {
-      console.error('Error enviando a n8n:', err);
-    });
-
-    // Responder inmediatamente
-    res.json({
-      success: true,
-      message: 'Generación de CV mejorado iniciada',
-      estimated_time: '2-3 minutos',
-      template: template
+    })
+    .then(async (response) => {
+      console.log('📥 Respuesta de n8n recibida (mejora):', response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Error en respuesta de n8n (mejora):', response.status, errorText);
+        await supabaseAdmin
+          .from('curriculums')
+          .update({ 
+            improvement_status: 'failed',
+            improvement_error: `Error de n8n: ${response.status} - ${errorText}`
+          })
+          .eq('id', cvId);
+        return;
+      }
+      
+      // Parsear respuesta JSON
+      let result;
+      try {
+        result = await response.json();
+        console.log('✅ JSON parseado correctamente (mejora). Tipo:', Array.isArray(result) ? 'array' : 'object');
+      } catch (e) {
+        console.error('❌ Error al parsear JSON de n8n (mejora):', e.message);
+        await supabaseAdmin
+          .from('curriculums')
+          .update({ 
+            improvement_status: 'failed',
+            improvement_error: `Error al parsear JSON: ${e.message}`
+          })
+          .eq('id', cvId);
+        return;
+      }
+      
+      // Extraer datos del CV mejorado
+      let improvedData = result;
+      
+      // n8n envía un array con el resultado
+      if (Array.isArray(result) && result.length > 0) {
+        improvedData = result[0];
+        console.log('📊 Datos del CV mejorado (array):', {
+          ok: improvedData.ok,
+          template: improvedData.template,
+          hasPDF: !!improvedData.pdf?.url,
+          hasHeader: !!improvedData.header,
+          hasSummary: !!improvedData.summary
+        });
+      } else {
+        console.log('📊 Datos del CV mejorado (objeto):', {
+          ok: improvedData.ok,
+          template: improvedData.template,
+          hasPDF: !!improvedData.pdf?.url
+        });
+      }
+      
+      // Calcular tiempo de procesamiento
+      const startTime = new Date(cv.improvement_requested_at);
+      const endTime = new Date();
+      const processingTime = Math.floor((endTime - startTime) / 1000);
+      
+      console.log('💾 Guardando CV mejorado en BD...');
+      
+      // Actualizar en BD
+      const { error: updateError } = await supabaseAdmin
+        .from('curriculums')
+        .update({
+          improvement_status: 'completed',
+          improved_cv_url: improvedData.pdf?.url || null,
+          improved_cv_data: improvedData,
+          improved_at: new Date().toISOString(),
+          improvement_processing_time_seconds: processingTime
+        })
+        .eq('id', cvId);
+      
+      if (updateError) {
+        console.error('❌ Error al actualizar BD (mejora):', updateError);
+      } else {
+        console.log(`✅ CV mejorado ${cvId} guardado. Template: ${improvedData.template}, Tiempo: ${processingTime}s`);
+      }
+    })
+    .catch(async (error) => {
+      console.error('❌ Error fatal en mejora:', error.message);
+      await supabaseAdmin
+        .from('curriculums')
+        .update({ 
+          improvement_status: 'failed',
+          improvement_error: error.message
+        })
+        .eq('id', cvId);
     });
 
   } catch (error) {
@@ -691,7 +806,22 @@ router.post('/files/:id/generate-improved', verifyAuth, async (req, res) => {
 router.patch('/files/:id/update-improved', async (req, res) => {
   try {
     const cvId = req.params.id;
-    const { improved_cv_url, status, error: errorMessage } = req.body;
+    const { 
+      improved_cv_url, 
+      improved_cv_data,
+      status, 
+      error: errorMessage,
+      processing_time_seconds 
+    } = req.body;
+
+    console.log('📥 Callback de n8n - CV mejorado:', {
+      cvId,
+      status,
+      hasUrl: !!improved_cv_url,
+      hasData: !!improved_cv_data,
+      template: improved_cv_data?.template,
+      processingTime: processing_time_seconds
+    });
 
     // Validar status
     if (!status || !['completed', 'failed'].includes(status)) {
@@ -709,6 +839,7 @@ router.patch('/files/:id/update-improved', async (req, res) => {
       .single();
 
     if (fetchError || !cv) {
+      console.error('❌ CV no encontrado:', cvId);
       return res.status(404).json({
         success: false,
         message: 'CV no encontrado'
@@ -716,8 +847,8 @@ router.patch('/files/:id/update-improved', async (req, res) => {
     }
 
     // Calcular tiempo de procesamiento en segundos
-    let processingTime = null;
-    if (cv.improvement_requested_at) {
+    let processingTime = processing_time_seconds;
+    if (!processingTime && cv.improvement_requested_at) {
       const startTime = new Date(cv.improvement_requested_at);
       const endTime = new Date();
       processingTime = Math.floor((endTime - startTime) / 1000);
@@ -727,15 +858,36 @@ router.patch('/files/:id/update-improved', async (req, res) => {
     const updateData = {
       improvement_status: status,
       improved_at: new Date().toISOString(),
-      improvement_processing_time: processingTime
+      improvement_processing_time_seconds: processingTime
     };
 
-    if (status === 'completed' && improved_cv_url) {
-      updateData.improved_cv_url = improved_cv_url;
+    // Si fue exitoso, guardar URL y datos completos
+    if (status === 'completed') {
+      if (improved_cv_url) {
+        updateData.improved_cv_url = improved_cv_url;
+      }
+      
+      if (improved_cv_data) {
+        // Guardar el JSON completo del CV mejorado
+        updateData.improved_cv_data = improved_cv_data;
+        
+        console.log('💾 Guardando datos del CV mejorado:', {
+          template: improved_cv_data.template,
+          version: improved_cv_data.version,
+          hasHeader: !!improved_cv_data.header,
+          hasSummary: !!improved_cv_data.summary,
+          educationCount: improved_cv_data.education?.length || 0,
+          experienceCount: improved_cv_data.experience?.length || 0,
+          skillsCategories: Object.keys(improved_cv_data.skills || {}),
+          warningsCount: improved_cv_data.warnings?.length || 0
+        });
+      }
     }
 
-    if (status === 'failed' && errorMessage) {
-      updateData.error_message = errorMessage;
+    // Si falló, guardar mensaje de error
+    if (status === 'failed') {
+      updateData.improvement_error = errorMessage || 'Error desconocido en n8n';
+      console.error('⚠️ Mejora de CV falló:', errorMessage);
     }
 
     // Actualizar en base de datos
@@ -745,13 +897,30 @@ router.patch('/files/:id/update-improved', async (req, res) => {
       .eq('id', cvId);
 
     if (updateError) {
+      console.error('❌ Error al actualizar BD:', updateError);
       throw updateError;
     }
 
+    const successMessage = status === 'completed' 
+      ? '✅ CV mejorado guardado exitosamente' 
+      : '⚠️ Mejora de CV marcada como fallida';
+    
+    console.log(successMessage, {
+      cvId,
+      processingTime: `${processingTime}s`,
+      template: improved_cv_data?.template
+    });
+
     res.json({
       success: true,
-      message: `CV ${status === 'completed' ? 'mejorado completado' : 'falló al mejorar'}`,
-      processing_time: processingTime
+      message: successMessage,
+      data: {
+        cvId,
+        status,
+        processing_time_seconds: processingTime,
+        improved_cv_url: improved_cv_url || null,
+        template: improved_cv_data?.template || null
+      }
     });
 
   } catch (error) {
@@ -773,10 +942,10 @@ router.get('/files/:id/improved-status', verifyAuth, async (req, res) => {
     const userId = req.user.id;
     const isAdmin = req.user.role === 'admin';
 
-    // Obtener CV de la base de datos
+    // Obtener CV de la base de datos con datos completos
     const { data: cv, error: fetchError } = await supabase
       .from('curriculums')
-      .select('user_id, improvement_status, improved_cv_url, selected_template, improvement_processing_time, error_message')
+      .select('user_id, improvement_status, improved_cv_url, improved_cv_data, selected_template, improvement_processing_time_seconds, improvement_error')
       .eq('id', cvId)
       .single();
 
@@ -795,14 +964,15 @@ router.get('/files/:id/improved-status', verifyAuth, async (req, res) => {
       });
     }
 
-    // Responder con estado actual
+    // Responder con estado actual y datos completos
     res.json({
       success: true,
       status: cv.improvement_status || 'not_started',
       improved_cv_url: cv.improved_cv_url || null,
+      improved_cv_data: cv.improved_cv_data || null,
       selected_template: cv.selected_template || null,
-      processing_time: cv.improvement_processing_time || null,
-      error: cv.error_message || null
+      processing_time_seconds: cv.improvement_processing_time_seconds || null,
+      error: cv.improvement_error || null
     });
 
   } catch (error) {
