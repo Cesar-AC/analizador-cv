@@ -1,0 +1,53 @@
+// Configuración de Supabase para el frontend
+const SUPABASE_CONFIG = {
+  url: 'https://qcpbeoqfyfocgxtfgvtc.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjcGJlb3FmeWZvY2d4dGZndnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2ODI3NzQsImV4cCI6MjA3NzI1ODc3NH0.QmQ71fj9enSHzg5PPVqsWRtMv4YXq67Ojd58CeBhhn8'
+};
+
+// URL base de la API
+const API_BASE_URL = 'http://localhost:3000/api';
+
+// Función para obtener el token de sesión
+function getAuthToken() {
+  return localStorage.getItem('access_token');
+}
+
+// Función para establecer el token de sesión
+function setAuthToken(token) {
+  localStorage.setItem('access_token', token);
+}
+
+// Función para eliminar el token de sesión
+function clearAuthToken() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('user_email');
+  localStorage.removeItem('user_id');
+}
+
+// Función para verificar si el usuario está autenticado
+function isAuthenticated() {
+  return !!getAuthToken();
+}
+
+// Función para guardar información del usuario
+function setUserInfo(user) {
+  localStorage.setItem('user_email', user.email);
+  localStorage.setItem('user_id', user.id);
+  localStorage.setItem('user_role', user.role || 'user');
+  localStorage.setItem('user_full_name', user.full_name || '');
+}
+
+// Función para obtener información del usuario
+function getUserInfo() {
+  return {
+    email: localStorage.getItem('user_email'),
+    id: localStorage.getItem('user_id'),
+    role: localStorage.getItem('user_role') || 'user',
+    full_name: localStorage.getItem('user_full_name') || ''
+  };
+}
+
+// Función para verificar si el usuario es admin
+function isAdmin() {
+  return getUserInfo().role === 'admin';
+}

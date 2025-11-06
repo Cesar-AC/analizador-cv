@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test - CV Results</title>
+    <script src="js/config.js"></script>
+</head>
+<body>
+    <h1>Test de Carga de Resultados</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        // Test 1: Verificar URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const cvId = urlParams.get('id');
+        output.innerHTML += `<p>CV ID: ${cvId || 'NO ENCONTRADO'}</p>`;
+        
+        // Test 2: Verificar config.js
+        try {
+            const token = getAuthToken();
+            output.innerHTML += `<p>Token: ${token ? 'SÍ EXISTE' : 'NO EXISTE'}</p>`;
+            
+            const userInfo = getUserInfo();
+            output.innerHTML += `<p>UserInfo: ${JSON.stringify(userInfo)}</p>`;
+            
+            output.innerHTML += `<p>API_BASE_URL: ${API_BASE_URL}</p>`;
+        } catch (error) {
+            output.innerHTML += `<p style="color:red">ERROR: ${error.message}</p>`;
+        }
+        
+        // Test 3: Intentar cargar datos
+        async function testLoad() {
+            if (!cvId) {
+                output.innerHTML += '<p style="color:orange">No hay ID de CV en la URL. Agrega ?id=XXXXX</p>';
+                return;
+            }
+            
+            try {
+                const token = getAuthToken();
+                const response = await fetch(`${API_BASE_URL}/files/${cvId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                output.innerHTML += `<p>Status: ${response.status}</p>`;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    output.innerHTML += `<p style="color:green">✅ DATOS CARGADOS CORRECTAMENTE</p>`;
+                    output.innerHTML += `<pre>${JSON.stringify(data, null, 2).substring(0, 500)}...</pre>`;
+                } else {
+                    const error = await response.json();
+                    output.innerHTML += `<p style="color:red">❌ ERROR: ${JSON.stringify(error)}</p>`;
+                }
+            } catch (error) {
+                output.innerHTML += `<p style="color:red">❌ EXCEPTION: ${error.message}</p>`;
+            }
+        }
+        
+        testLoad();
+    </script>
+</body>
+</html>

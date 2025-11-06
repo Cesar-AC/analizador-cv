@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Panel de administración - AutoCV IA">
+  <title>Admin - AutoCV IA</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <i class="fas fa-file-alt"></i>
+        AutoCV IA
+      </a>
+      <div class="auth-buttons">
+        <span style="color: var(--primary-color); display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+          <i class="fas fa-user-shield"></i>
+          <span class="admin-label">Admin</span>
+        </span>
+        <a href="dashboard.html" class="btn btn-outline" style="padding: 0.6rem 1rem;">
+          <i class="fas fa-tachometer-alt"></i>
+          <span class="btn-text">Mi Dashboard</span>
+        </a>
+        <button onclick="logout()" class="btn btn-outline">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="btn-text">Salir</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Panel -->
+  <main class="dashboard">
+    <div class="dashboard-container" style="max-width: 1400px;">
+      <!-- Admin Header -->
+      <div class="dashboard-header">
+        <h1><i class="fas fa-shield-alt"></i> Panel de Administración</h1>
+        <div class="user-info">
+          <i class="fas fa-user-shield"></i>
+          <span id="admin-email"></span>
+        </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="total-users">0</h3>
+            <p>Usuarios Totales</p>
+            <small id="new-users">+0 últimos 30 días</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="total-admins">0</h3>
+            <p>Administradores</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="total-cvs">0</h3>
+            <p>CVs Subidos</p>
+            <small id="new-cvs">+0 últimos 30 días</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="completed-cvs">0</h3>
+            <p>CVs Analizados</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a, #fee140);">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="avg-score">0</h3>
+            <p>Puntuación Promedio</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #30cfd0, #330867);">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="pending-cvs">0</h3>
+            <p>CVs Pendientes</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="admin-tabs">
+        <button class="tab-btn active" onclick="switchTab('users')">
+          <i class="fas fa-users"></i> Usuarios
+        </button>
+        <button class="tab-btn" onclick="switchTab('curriculums')">
+          <i class="fas fa-file-pdf"></i> Currículums
+        </button>
+      </div>
+
+      <!-- Tab Content: Usuarios -->
+      <div id="users-tab" class="tab-content active">
+        <div class="upload-section">
+          <h2><i class="fas fa-users"></i> Gestión de Usuarios</h2>
+          <div id="users-alert"></div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Nombre</th>
+                  <th>Role</th>
+                  <th>CVs</th>
+                  <th>Fecha Registro</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <tr>
+                  <td colspan="6" class="loading-row">
+                    <i class="fas fa-spinner fa-spin"></i> Cargando...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Currículums -->
+      <div id="curriculums-tab" class="tab-content">
+        <div class="upload-section">
+          <h2><i class="fas fa-file-pdf"></i> Todos los Currículums</h2>
+          <div id="cvs-alert"></div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Archivo</th>
+                  <th>Estado</th>
+                  <th>Puntuación</th>
+                  <th>Fecha Subida</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="cvs-table-body">
+                <tr>
+                  <td colspan="6" class="loading-row">
+                    <i class="fas fa-spinner fa-spin"></i> Cargando...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 AutoCV IA &ndash; Panel de Administración</p>
+  </footer>
+
+  <!-- Modal de Edición de Usuario -->
+  <div id="edit-user-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-user-edit"></i> Editar Usuario</h3>
+        <button class="close-modal" onclick="closeEditModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="edit-user-form">
+        <input type="hidden" id="edit-user-id">
+        
+        <div class="form-group">
+          <label for="edit-user-email">
+            <i class="fas fa-envelope"></i> Email
+          </label>
+          <input type="email" id="edit-user-email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-user-name">
+            <i class="fas fa-user"></i> Nombre Completo
+          </label>
+          <input type="text" id="edit-user-name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-user-avatar">
+            <i class="fas fa-image"></i> URL de Avatar (opcional)
+          </label>
+          <input type="url" id="edit-user-avatar">
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary" id="save-user-btn">
+            <i class="fas fa-save"></i> Guardar Cambios
+          </button>
+          <button type="button" class="btn btn-outline" onclick="closeEditModal()">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

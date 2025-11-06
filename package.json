@@ -1,0 +1,31 @@
+{
+  "name": "autocv-ia",
+  "version": "1.0.0",
+  "description": "Aplicación web para análisis de currículums con IA",
+  "main": "backend/app.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon backend/app.js",
+    "start": "node backend/app.js"
+  },
+  "keywords": [
+    "cv",
+    "ia",
+    "curriculum",
+    "supabase"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "form-data": "^4.0.4",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

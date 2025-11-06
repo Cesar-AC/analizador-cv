@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dashboard de AutoCV IA">
+  <title>Dashboard - AutoCV IA</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <i class="fas fa-file-alt"></i>
+        AutoCV IA
+      </a>
+      <div class="auth-buttons">
+        <span id="user-email-display" style="color: var(--primary-color); display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+          <i class="fas fa-user-circle"></i>
+          <span class="user-email-text"></span>
+        </span>
+        <button id="adminPanelBtn" onclick="window.location.href='admin.html'" class="btn btn-primary" style="display: none;">
+          <i class="fas fa-shield-alt"></i>
+          <span class="btn-text">Panel Admin</span>
+        </button>
+        <button onclick="window.location.href='profile.html'" class="btn btn-primary">
+          <i class="fas fa-user-edit"></i>
+          <span class="btn-text">Mi Perfil</span>
+        </button>
+        <button onclick="logout()" class="btn btn-outline">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="btn-text">Salir</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dashboard -->
+  <main class="dashboard">
+    <div class="dashboard-container">
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <h1><i class="fas fa-tachometer-alt"></i> Mi Dashboard</h1>
+        <div class="user-info">
+          <i class="fas fa-envelope"></i>
+          <span id="user-email"></span>
+        </div>
+      </div>
+
+      <!-- Upload Section -->
+      <div class="upload-section">
+        <h2><i class="fas fa-cloud-upload-alt"></i> Subir Currículum</h2>
+        <p style="color: #666; margin-bottom: 1.5rem;">Carga tu CV en formato PDF para su análisis</p>
+
+        <div id="upload-alert-container"></div>
+
+        <div class="upload-area" id="upload-area">
+          <i class="fas fa-file-pdf"></i>
+          <p><strong>Haz clic para seleccionar tu CV</strong></p>
+          <p class="file-info">o arrastra y suelta aquí</p>
+          <p class="file-info">Máximo 5MB • Solo PDF</p>
+        </div>
+
+        <input type="file" id="file-input" accept=".pdf" />
+
+        <div id="file-selected" class="file-selected hidden">
+          <i class="fas fa-file-pdf"></i>
+          <div class="file-details">
+            <strong id="selected-file-name"></strong>
+            <small id="selected-file-size"></small>
+          </div>
+          <button type="button" onclick="clearFile()" class="btn btn-outline" style="padding: 0.5rem 1rem;">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <button id="upload-btn" class="btn btn-primary" onclick="uploadFile()" disabled>
+          <i class="fas fa-upload"></i>
+          Subir y analizar
+        </button>
+      </div>
+
+      <!-- History Section -->
+      <div class="history-section">
+        <h2><i class="fas fa-history"></i> Historial de Evaluaciones</h2>
+        <div id="history-list" class="history-list">
+          <!-- Aquí se cargarán los archivos -->
+          <div class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <p>Aún no has subido ningún currículum</p>
+            <small>Sube tu primer CV para comenzar el análisis</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 AutoCV IA &ndash; Mejora tu perfil profesional</p>
+    <p>
+      <a href="#"><i class="fas fa-shield-alt"></i> Privacidad</a> |
+      <a href="#"><i class="fas fa-file-contract"></i> Términos</a> |
+      <a href="#"><i class="fas fa-envelope"></i> Contacto</a>
+    </p>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

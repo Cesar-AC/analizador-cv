@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Inicia sesión o regístrate en AutoCV IA">
+  <title>Iniciar Sesión - AutoCV IA</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-box">
+      <a href="/" class="logo" style="justify-content: center; margin-bottom: 1rem; font-size: 1.5rem;">
+        <i class="fas fa-file-alt"></i>
+        AutoCV IA
+      </a>
+
+      <!-- Formulario de Login -->
+      <form id="login-form">
+        <h2>Iniciar Sesión</h2>
+        <p>Bienvenido de nuevo</p>
+
+        <div id="alert-container"></div>
+
+        <div class="form-group">
+          <label for="login-email">
+            <i class="fas fa-envelope"></i> Correo electrónico
+          </label>
+          <input 
+            type="email" 
+            id="login-email" 
+            name="email" 
+            placeholder="tu@email.com" 
+            required
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">
+            <i class="fas fa-lock"></i> Contraseña
+          </label>
+          <input 
+            type="password" 
+            id="login-password" 
+            name="password" 
+            placeholder="••••••••" 
+            required
+            autocomplete="current-password"
+            minlength="6"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="login-btn">
+          <i class="fas fa-sign-in-alt"></i>
+          Iniciar sesión
+        </button>
+
+        <div class="auth-footer">
+          ¿No tienes cuenta? <a href="#" id="show-register">Regístrate aquí</a>
+        </div>
+      </form>
+
+      <!-- Formulario de Registro -->
+      <form id="register-form" class="hidden">
+        <h2>Crear Cuenta</h2>
+        <p>Únete a AutoCV IA</p>
+
+        <div id="register-alert-container"></div>
+
+        <div class="form-group">
+          <label for="register-name">
+            <i class="fas fa-user"></i> Nombre completo
+          </label>
+          <input 
+            type="text" 
+            id="register-name" 
+            name="fullName" 
+            placeholder="Tu nombre" 
+            required
+            autocomplete="name"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="register-email">
+            <i class="fas fa-envelope"></i> Correo electrónico
+          </label>
+          <input 
+            type="email" 
+            id="register-email" 
+            name="email" 
+            placeholder="tu@email.com" 
+            required
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="register-password">
+            <i class="fas fa-lock"></i> Contraseña
+          </label>
+          <input 
+            type="password" 
+            id="register-password" 
+            name="password" 
+            placeholder="Mínimo 6 caracteres" 
+            required
+            autocomplete="new-password"
+            minlength="6"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="register-confirm">
+            <i class="fas fa-lock"></i> Confirmar contraseña
+          </label>
+          <input 
+            type="password" 
+            id="register-confirm" 
+            name="confirmPassword" 
+            placeholder="Repite tu contraseña" 
+            required
+            autocomplete="new-password"
+            minlength="6"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="register-btn">
+          <i class="fas fa-user-plus"></i>
+          Crear cuenta
+        </button>
+
+        <div class="auth-footer">
+          ¿Ya tienes cuenta? <a href="#" id="show-login">Inicia sesión aquí</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
