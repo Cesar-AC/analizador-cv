@@ -1,129 +1,86 @@
-# 🚀 AutoCV IA
+# 🚀 Analizador de CV con IA
 
-Aplicación web para analizar y mejorar currículums con inteligencia artificial.
+Sistema completo de análisis y mejora de currículums vitae utilizando inteligencia artificial mediante n8n, con templates profesionales y seguimiento en tiempo real.
 
-## 📋 Características
+## 📋 Características Principales
 
+### 🔐 Autenticación y Usuarios
 - ✅ Registro e inicio de sesión con Supabase Auth
+- ✅ Roles de usuario (Admin y Usuario regular)
+- ✅ Panel administrativo para gestión de CVs
+
+### 📄 Análisis de CV
 - ✅ Subida de archivos PDF de currículums
-- ✅ Diseño responsive optimizado para dispositivos móviles
+- ✅ Análisis automático con IA mediante n8n
+- ✅ Puntuación detallada (Estructura, Contenido, Formato, ATS)
+- ✅ Preguntas personalizadas por sección del CV
+- ✅ Recomendaciones específicas de mejora
+
+### ✨ Mejora de CV
+- ✅ Sistema de preguntas interactivo con skip/next
+- ✅ Selección de 3 templates profesionales:
+  - 📋 **Harvard Classic**: Formato tradicional y elegante
+  - 💻 **MIT Technical**: Diseño moderno y técnico
+  - 🚀 **Stanford Innovative**: Formato innovador y creativo
+- ✅ Modal de confirmación con resumen
+- ✅ Polling automático cada 5 segundos
+- ✅ Generación de PDF mejorado con n8n
+- ✅ Descarga directa del CV mejorado
+
+### 🎨 Interfaz de Usuario
+- ✅ Diseño responsive optimizado para móviles
 - ✅ Interfaz moderna y profesional
-- ✅ Almacenamiento seguro en Supabase Storage
+- ✅ Modals animados con estados visuales
+- ✅ Gráficos interactivos con Chart.js
+- ✅ Sistema de progreso en tiempo real
 
 ## 🛠️ Tecnologías
 
 **Frontend:**
-- HTML5, CSS3 (Flexbox/Grid)
-- JavaScript vanilla
-- Font Awesome para iconos
-- Google Fonts (Poppins)
+- HTML5, CSS3, JavaScript ES6+
+- Chart.js, Font Awesome, Google Fonts
 
 **Backend:**
 - Node.js + Express
-- Supabase (Auth + Storage)
-- Multer para manejo de archivos
+- Supabase (Auth + Database + Storage)
+- n8n para integración con IA
 
-## 📦 Instalación
+**Base de Datos:**
+- PostgreSQL con JSONB
+- Row Level Security (RLS)
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone <tu-repositorio>
-   cd cv
-   ```
+## 📦 Instalación Rápida
 
-2. **Instalar dependencias**
-   ```bash
-   npm install
-   ```
-
-3. **Configurar variables de entorno**
-   
-   El archivo `.env` ya está incluido con las credenciales de Supabase:
-   ```
-   SUPABASE_URL=https://qcpbeoqfyfocgxtfgvtc.supabase.co
-   SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-   PORT=3000
-   ```
-
-4. **Configurar Supabase Storage**
-   
-   Ve a tu proyecto en Supabase y crea un bucket llamado `cv`:
-   - Dashboard de Supabase → Storage → Create bucket
-   - Nombre: `cv`
-   - Público: No (privado)
-
-## 🚀 Uso
-
-### Modo desarrollo (con auto-reload):
 ```bash
+# 1. Clonar repositorio
+git clone https://github.com/Cesar-AC/analizador-cv.git
+cd analizador-cv
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Configurar .env (ver backend/.env.example)
+# 4. Ejecutar scripts SQL en Supabase
+# 5. Configurar n8n (ver N8N_CONFIGURACION.md)
+
+# 6. Iniciar servidor
 npm run dev
 ```
 
-### Modo producción:
-```bash
-npm start
-```
+## 📚 Documentación
 
-El servidor estará disponible en: `http://localhost:3000`
-
-## 📱 Estructura del Proyecto
-
-```
-/cv
-  /backend
-    app.js                 # Servidor Express principal
-    /routes
-      auth.js             # Rutas de autenticación
-      upload.js           # Rutas de subida de archivos
-    /services
-      supabaseClient.js   # Cliente de Supabase
-  /frontend
-    index.html            # Landing page
-    login.html            # Página de login/registro
-    dashboard.html        # Dashboard del usuario
-    /css
-      styles.css          # Estilos principales (mobile-first)
-    /js
-      main.js             # Lógica de la landing page
-      auth.js             # Lógica de autenticación
-      dashboard.js        # Lógica del dashboard
-      config.js           # Configuración de Supabase
-  /uploads                # Carpeta temporal para archivos
-  .env                    # Variables de entorno
-  .gitignore
-  package.json
-  README.md
-```
-
-## 📖 Uso de la Aplicación
-
-1. **Página principal**: Presenta la aplicación con diseño atractivo
-2. **Registro/Login**: Crea una cuenta o inicia sesión
-3. **Dashboard**: Sube tu currículum en formato PDF
-4. **Análisis**: El sistema procesará tu CV y mostrará mejoras
-
-## 🎨 Diseño
-
-- **Colores principales**: 
-  - Azul: #007bff
-  - Verde: #00b894
-  - Gradientes modernos
-  
-- **Tipografía**: Poppins (Google Fonts)
-- **Responsive**: Mobile-first design
-- **Iconos**: Font Awesome 6
-
-## 🔒 Seguridad
-
-- Autenticación mediante Supabase Auth
-- Tokens JWT seguros
-- Storage privado por defecto
-- Variables de entorno para credenciales
+- [`GUIA_COMPLETA.md`](GUIA_COMPLETA.md) - Guía completa del sistema
+- [`N8N_CONFIGURACION.md`](N8N_CONFIGURACION.md) - Configuración de n8n
+- [`CONFIGURACION_SUPABASE.md`](CONFIGURACION_SUPABASE.md) - Setup de Supabase
 
 ## 📄 Licencia
 
-ISC
+ISC License
 
-## 👥 Contacto
+## 👥 Autor
 
-© 2025 AutoCV IA – Mejora tu perfil profesional
+**Cesar AC** - [@Cesar-AC](https://github.com/Cesar-AC)
+
+---
+
+**© 2024 Analizador de CV con IA** 🚀
