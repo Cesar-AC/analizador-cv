@@ -320,14 +320,9 @@ async function loadHistory() {
               </button>
             ` : ''}
             ${file.hasImprovedCV ? `
-              <button onclick="viewImprovedResults('${file.id}')" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; position: relative;">
+              <button onclick="openImprovedResultsModal('${file.id}')" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; position: relative;">
                 <i class="fas fa-sparkles"></i>
                 CV Mejorado
-                ${file.improvedProcessingTime ? `
-                  <span style="display: block; font-size: 0.75rem; opacity: 0.9; margin-top: 2px;">
-                    ${formatProcessingTime(file.improvedProcessingTime)}
-                  </span>
-                ` : ''}
               </button>
             ` : ''}
           </div>
@@ -414,9 +409,16 @@ function viewResults(cvId) {
   window.location.href = `cv-results.html?id=${cvId}`;
 }
 
-// Función para ver resultados del CV mejorado
+// Función para ver resultados del CV mejorado (ahora abre el modal)
 function viewImprovedResults(cvId) {
-  window.location.href = `cv-results.html?id=${cvId}&openImproved=true`;
+  // Abrir modal directamente en lugar de redirigir
+  if (typeof openImprovedResultsModal === 'function') {
+    openImprovedResultsModal(cvId);
+  } else {
+    console.error('❌ La función openImprovedResultsModal no está disponible');
+    // Fallback: redirigir a cv-results
+    window.location.href = `cv-results.html?id=${cvId}&openImproved=true`;
+  }
 }
 
 // Función para formatear el tiempo de procesamiento

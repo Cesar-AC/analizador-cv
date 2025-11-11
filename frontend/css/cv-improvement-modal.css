@@ -1,0 +1,677 @@
+/* ============================================
+   CSS para Modal de Mejora de CV
+   Estilos del modal interactivo de preguntas
+   ============================================ */
+
+/* Modal base */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content-improvement {
+    position: relative;
+    background: white;
+    margin: 5% auto;
+    padding: 0;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.4s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Header del modal */
+.modal-header-improvement {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 25px 25px 0 0;
+    text-align: center;
+}
+
+.modal-header-improvement h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.modal-subtitle {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.95;
+    font-size: 1rem;
+}
+
+.modal-tips {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-tips p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.modal-tips i {
+    margin-right: 0.5rem;
+    color: #ffd700;
+}
+
+/* Barra de progreso */
+.progress-bar {
+    background: #f0f0f0;
+    height: 8px;
+    position: relative;
+    margin: 2rem 2rem 1rem 2rem;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 10px;
+}
+
+.progress-text {
+    display: block;
+    text-align: center;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Contenedor de preguntas */
+.question-container {
+    padding: 2rem;
+    min-height: 400px;
+}
+
+.question-animation {
+    animation: questionSlide 0.5s ease;
+}
+
+@keyframes questionSlide {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.question-header-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.question-number {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.question-section {
+    color: #667eea;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.question-text {
+    font-size: 1.2rem;
+    color: #2d3748;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+/* Campo de respuesta */
+.answer-input {
+    width: 100%;
+    padding: 1.25rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.answer-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: #f8fafc;
+}
+
+/* Acciones del modal */
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.btn-skip, .btn-next {
+    flex: 1;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-skip {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.btn-skip:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.btn-next {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-next:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-next:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Botón cerrar */
+.btn-close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Mensaje de completado */
+.completion-message {
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.success-icon {
+    margin-bottom: 1.5rem;
+}
+
+.success-icon i {
+    font-size: 4rem;
+    color: #10b981;
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.completion-message h3 {
+    color: #1f2937;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle-completion {
+    color: #6b7280;
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+    font-weight: 400;
+}
+
+/* Selección de plantillas mejorada */
+.template-selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0 2.5rem;
+    padding: 0 1rem;
+}
+
+.template-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.template-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.template-card:hover {
+    border-color: #667eea;
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
+}
+
+.template-card:hover::before {
+    opacity: 1;
+}
+
+.template-card.selected {
+    border-color: #667eea;
+    background: linear-gradient(to bottom, rgba(102, 126, 234, 0.05) 0%, white 100%);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.25);
+}
+
+.template-card.selected::before {
+    opacity: 1;
+    height: 6px;
+}
+
+/* Badge de categoría */
+.template-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0 0 12px 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+.template-badge i {
+    font-size: 0.9rem;
+}
+
+.template-badge.badge-tech {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.template-badge.badge-academic {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+}
+
+/* Preview de la plantilla */
+.template-preview {
+    height: 240px;
+    background: #f9fafb;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.template-preview-harvard {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.template-preview-mit {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.template-preview-oxford {
+    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+}
+
+/* Mockup del CV */
+.template-mockup {
+    width: 140px;
+    height: 190px;
+    background: white;
+    border-radius: 4px;
+    padding: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.template-card:hover .template-mockup {
+    transform: scale(1.05);
+}
+
+.mockup-header {
+    height: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.mockup-header.modern {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border-radius: 0;
+}
+
+.mockup-header.classic {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    height: 20px;
+}
+
+.mockup-line {
+    height: 4px;
+    background: #d1d5db;
+    border-radius: 2px;
+    margin-bottom: 6px;
+}
+
+.mockup-line.short {
+    width: 60%;
+}
+
+.mockup-section {
+    height: 30px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    margin: 10px 0;
+}
+
+.mockup-section.small {
+    height: 20px;
+}
+
+.mockup-columns {
+    display: flex;
+    gap: 8px;
+}
+
+.mockup-col {
+    flex: 1;
+}
+
+/* Información de la plantilla */
+.template-info {
+    padding: 1.5rem;
+    text-align: left;
+}
+
+.template-info h4 {
+    color: #1f2937;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.template-category {
+    color: #667eea;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+}
+
+.template-description {
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.template-features {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.template-features span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #f3f4f6;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #4b5563;
+}
+
+.template-features i {
+    color: #10b981;
+    font-size: 0.75rem;
+}
+
+/* Botón de continuar */
+.btn-continue-template {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-continue-template:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-continue-template:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-continue-template i {
+    transition: transform 0.3s ease;
+}
+
+.btn-continue-template:hover:not(:disabled) i {
+    transform: translateX(4px);
+}
+
+/* Estilos para modal de progreso */
+.progress-spinner {
+    margin: 2rem 0;
+}
+
+.progress-steps {
+    margin-top: 2rem;
+    text-align: left;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.progress-steps > div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #4b5563;
+}
+
+.progress-steps i {
+    margin-right: 0.75rem;
+    width: 20px;
+    text-align: center;
+}
+
+/* Modal de confirmación */
+.confirmation-modal {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.confirmation-icon {
+    font-size: 4rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.confirmation-modal h3 {
+    color: #2d3748;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.confirmation-modal p {
+    color: #718096;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.confirmation-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn-cancel {
+    background: #e5e7eb;
+    color: #4b5563;
+    border: none;
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: #d1d5db;
+    transform: translateY(-2px);
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}

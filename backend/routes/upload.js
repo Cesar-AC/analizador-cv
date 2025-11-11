@@ -601,6 +601,8 @@ router.post('/files/:id/generate-improved', verifyAuth, async (req, res) => {
     const userEmail = req.user.email;
     const { template } = req.body;
 
+    console.log('🔍 Generando CV mejorado - CV ID:', cvId, 'User ID:', userId, 'Template:', template);
+
     // Validar que el template sea válido
     const validTemplates = ['harvard', 'mit', 'oxford'];
     if (!template || !validTemplates.includes(template)) {
@@ -610,19 +612,42 @@ router.post('/files/:id/generate-improved', verifyAuth, async (req, res) => {
       });
     }
 
+    // Validar que cvId sea un UUID válido
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(cvId)) {
+      console.error('❌ CV ID inválido:', cvId);
+      return res.status(400).json({
+        success: false,
+        message: 'ID de CV inválido'
+      });
+    }
+
     // Obtener CV de la base de datos
+    console.log('📊 Buscando CV en la base de datos...');
     const { data: cv, error: fetchError } = await supabase
       .from('curriculums')
       .select('*')
       .eq('id', cvId)
       .single();
 
-    if (fetchError || !cv) {
+    if (fetchError) {
+      console.error('❌ Error al buscar CV:', fetchError);
+      return res.status(404).json({
+        success: false,
+        message: 'CV no encontrado en la base de datos',
+        error: fetchError.message
+      });
+    }
+
+    if (!cv) {
+      console.error('❌ CV no encontrado - ID:', cvId);
       return res.status(404).json({
         success: false,
         message: 'CV no encontrado'
       });
     }
+
+    console.log('✅ CV encontrado:', cv.file_name);
 
     // Verificar que el usuario sea el propietario
     if (cv.user_id !== userId) {
@@ -942,10 +967,10 @@ router.get('/files/:id/improved-status', verifyAuth, async (req, res) => {
     const userId = req.user.id;
     const isAdmin = req.user.role === 'admin';
 
-    // Obtener CV de la base de datos con datos completos
+    // Obtener CV de la base de datos con datos completos (incluyendo analysis_result del CV original)
     const { data: cv, error: fetchError } = await supabase
       .from('curriculums')
-      .select('user_id, improvement_status, improved_cv_url, improved_cv_data, selected_template, improvement_processing_time_seconds, improvement_error')
+      .select('user_id, improvement_status, improved_cv_url, improved_cv_data, selected_template, improvement_processing_time_seconds, improvement_error, analysis_result')
       .eq('id', cvId)
       .single();
 
@@ -964,6 +989,13 @@ router.get('/files/:id/improved-status', verifyAuth, async (req, res) => {
       });
     }
 
+    // Extraer el puntaje original del CV (del analysis_result.meta del análisis original)
+    console.log('🔍 CV analysis_result completo:', cv.analysis_result);
+    console.log('🔍 cv.analysis_result?.meta?.puntaje_total:', cv.analysis_result?.meta?.puntaje_total);
+    
+    const originalScore = cv.analysis_result?.meta?.puntaje_total || 0;
+    console.log('⭐ originalScore a enviar:', originalScore);
+
     // Responder con estado actual y datos completos
     res.json({
       success: true,
@@ -972,7 +1004,9 @@ router.get('/files/:id/improved-status', verifyAuth, async (req, res) => {
       improved_cv_data: cv.improved_cv_data || null,
       selected_template: cv.selected_template || null,
       processing_time_seconds: cv.improvement_processing_time_seconds || null,
-      error: cv.improvement_error || null
+      error: cv.improvement_error || null,
+      original_score: originalScore, // ⭐ Puntaje del CV original para comparación
+      analysis_result: cv.analysis_result || null // ⭐ NUEVO: Para obtener detalles originales por categoría
     });
 
   } catch (error) {

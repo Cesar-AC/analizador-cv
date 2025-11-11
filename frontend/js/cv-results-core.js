@@ -1,0 +1,386 @@
+/**
+ * ============================================
+ * CV Results - Core JavaScript
+ * Funcionalidad principal para visualización de resultados
+ * ============================================
+ */
+
+// Variables globales
+const urlParams = new URLSearchParams(window.location.search);
+const cvId = urlParams.get('id');
+let categoryChart;
+let currentCvData = null;
+let improvementQuestions = [];
+let currentQuestionIndex = 0;
+let answers = [];
+let selectedTemplate = null;
+let pollingInterval = null;
+let pollingAttempts = 0;
+const MAX_POLLING_ATTEMPTS = 60;
+let improvedCvData = null;
+
+// Validación inicial
+if (!cvId) {
+    alert('No se especificó un CV para mostrar');
+    window.location.href = 'dashboard.html';
+}
+
+// Helper: Obtener ID del CV desde URL
+function getCvIdFromURL() {
+    // Intentar obtener del query string primero (?id=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const idFromQuery = urlParams.get('id');
+    
+    if (idFromQuery) {
+        console.log('✅ CV ID obtenido del query string:', idFromQuery);
+        return idFromQuery;
+    }
+    
+    // Si no está en query string, intentar obtener del path (/cv-results/uuid)
+    const pathParts = window.location.pathname.split('/');
+    const idFromPath = pathParts[pathParts.length - 1].replace('.html', '');
+    
+    // Validar que sea un UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (uuidRegex.test(idFromPath)) {
+        console.log('✅ CV ID obtenido del path:', idFromPath);
+        return idFromPath;
+    }
+    
+    console.error('❌ No se pudo obtener un CV ID válido de la URL');
+    return null;
+}
+
+// Helper: Formatear etiquetas
+function formatLabel(key) {
+    const labels = {
+        'estructura': 'Estructura',
+        'contenido': 'Contenido',
+        'formato': 'Formato',
+        'compatibilidad_ATS': 'Compatibilidad ATS'
+    };
+    return labels[key] || key;
+}
+
+// Helper: Formatear tiempo de procesamiento
+function formatProcessingTime(seconds) {
+    if (seconds > 31536000) {
+        return 'Error en cálculo';
+    }
+    
+    if (seconds < 60) {
+        return `${seconds} segundos`;
+    } else if (seconds < 3600) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return remainingSeconds > 0 
+            ? `${minutes} min ${remainingSeconds} seg` 
+            : `${minutes} minutos`;
+    } else {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        return minutes > 0 
+            ? `${hours}h ${minutes}min` 
+            : `${hours} horas`;
+    }
+}
+
+// Cargar resultados del análisis
+async function loadResults() {
+    try {
+        const token = getAuthToken();
+        const userInfo = getUserInfo();
+        console.log('Token obtenido:', token ? 'Sí existe' : 'No existe');
+        
+        if (!token) {
+            alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
+            window.location.href = '/';
+            return;
+        }
+        
+        const isAdmin = userInfo && userInfo.role === 'admin';
+        const url = isAdmin 
+            ? `${API_BASE_URL}/admin/curriculums/${cvId}`
+            : `${API_BASE_URL}/files/${cvId}`;
+        
+        console.log('Haciendo petición a:', url);
+        
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error al cargar resultados');
+        }
+
+        const data = await response.json();
+        const cv = data.file;
+
+        if (!cv.analysis_result || cv.analysis_result === null) {
+            alert('Este CV aún no ha sido analizado o está en proceso.');
+            window.location.href = isAdmin ? 'admin.html' : 'dashboard.html';
+            return;
+        }
+
+        displayResults(cv, isAdmin);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('results-content').style.display = 'block';
+
+        await checkImprovedCvStatus();
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar los resultados: ' + error.message);
+        const userInfo = getUserInfo();
+        const isAdmin = userInfo && userInfo.role === 'admin';
+        window.location.href = isAdmin ? 'admin.html' : 'dashboard.html';
+    }
+}
+
+// Mostrar resultados del análisis
+function displayResults(cv, isAdmin) {
+    try {
+        // Configurar botones de navegación
+        const backButton = document.getElementById('backButton');
+        const switchViewButton = document.getElementById('switchViewButton');
+        const backText = document.getElementById('backText');
+        const switchViewText = document.getElementById('switchViewText');
+        
+        if (isAdmin) {
+            backButton.href = 'admin.html';
+            backText.textContent = 'Volver a Admin';
+            switchViewButton.style.display = 'inline-flex';
+            switchViewButton.href = 'dashboard.html';
+            switchViewText.textContent = 'Ir a Dashboard Usuario';
+            
+            const improveCvButton = document.getElementById('improveCvButton');
+            const ctaSection = document.getElementById('ctaSection');
+            if (improveCvButton) improveCvButton.style.display = 'none';
+            if (ctaSection) ctaSection.style.display = 'none';
+        } else {
+            backButton.href = 'dashboard.html';
+            backText.textContent = 'Volver al Dashboard';
+            switchViewButton.style.display = 'none';
+            
+            const improveCvButton = document.getElementById('improveCvButton');
+            const ctaSection = document.getElementById('ctaSection');
+            if (improveCvButton) improveCvButton.style.display = 'inline-flex';
+            if (ctaSection) ctaSection.style.display = 'block';
+        }
+        
+        const analysis = cv.analysis_result;
+        currentCvData = analysis;
+        window.cvAnalysisData = analysis;
+        
+        if (!analysis || !analysis.meta) {
+            throw new Error('Formato de análisis inválido');
+        }
+    
+        // Puntaje total
+        document.getElementById('totalScore').textContent = analysis.meta.puntaje_total;
+
+        // Link del PDF
+        if (analysis.meta.links?.pdf_url) {
+            document.getElementById('pdfLink').href = analysis.meta.links.pdf_url;
+        } else {
+            document.getElementById('pdfLink').style.display = 'none';
+        }
+
+        // Detalles de puntuación
+        const detailScores = document.getElementById('detailScores');
+        const details = analysis.meta.detalle;
+        detailScores.innerHTML = Object.entries(details).map(([key, value]) => `
+            <div class="detail-score">
+                <span class="detail-score-label">${formatLabel(key)}</span>
+                <span class="detail-score-value">${value}/100</span>
+            </div>
+        `).join('');
+
+        // Crear gráficos
+        createCategoryChart(details);
+        createDoughnutChart(details, analysis.meta.puntaje_total);
+
+        // Secciones detectadas
+        const sectionsList = document.getElementById('sectionsList');
+        sectionsList.innerHTML = analysis.meta.secciones_detectadas.map(section => `
+            <div class="section-item">
+                <i class="fas fa-check-circle"></i> ${section}
+            </div>
+        `).join('');
+
+        // Debilidades
+        const weaknessesList = document.getElementById('weaknessesList');
+        weaknessesList.innerHTML = analysis.resumen.debilidades.map(weakness => `
+            <div class="weakness-item">
+                <i class="fas fa-exclamation-circle"></i> ${weakness}
+            </div>
+        `).join('');
+
+        // Recomendaciones generales
+        const recommendationsList = document.getElementById('recommendationsList');
+        recommendationsList.innerHTML = analysis.resumen.recomendaciones.map(rec => `
+            <div class="recommendation-item">
+                <i class="fas fa-star"></i> ${rec}
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error en displayResults:', error);
+        alert('Error al mostrar los resultados: ' + error.message);
+        window.location.href = 'dashboard.html';
+    }
+}
+
+// Crear gráfico de categorías
+function createCategoryChart(details) {
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    
+    if (categoryChart) categoryChart.destroy();
+
+    categoryChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(details).map(formatLabel),
+            datasets: [{
+                label: 'Puntuación',
+                data: Object.values(details),
+                backgroundColor: [
+                    'rgba(102, 126, 234, 0.8)',
+                    'rgba(118, 75, 162, 0.8)',
+                    'rgba(237, 100, 166, 0.8)',
+                    'rgba(255, 154, 158, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(102, 126, 234, 1)',
+                    'rgba(118, 75, 162, 1)',
+                    'rgba(237, 100, 166, 1)',
+                    'rgba(255, 154, 158, 1)'
+                ],
+                borderWidth: 2,
+                borderRadius: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+// Crear gráfico circular
+function createDoughnutChart(details, totalScore) {
+    const ctx = document.getElementById('doughnutChart').getContext('2d');
+    
+    if (window.doughnutChartInstance) {
+        window.doughnutChartInstance.destroy();
+    }
+
+    const avgScore = Object.values(details).reduce((a, b) => a + b, 0) / Object.values(details).length;
+    const remaining = 100 - avgScore;
+
+    window.doughnutChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Puntuación Obtenida', 'Margen de Mejora'],
+            datasets: [{
+                data: [avgScore, remaining],
+                backgroundColor: [
+                    'rgba(102, 126, 234, 0.8)',
+                    'rgba(229, 231, 235, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(102, 126, 234, 1)',
+                    'rgba(229, 231, 235, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed.toFixed(1) + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Verificar el estado del CV mejorado
+async function checkImprovedCvStatus() {
+    try {
+        const cvId = window.location.pathname.split('/').pop();
+        const token = getAuthToken();
+        
+        const response = await fetch(`${API_BASE_URL}/files/${cvId}/improved-status`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.status === 'completed' && data.improved_cv_url) {
+                console.log('✅ CV mejorado disponible');
+                // Agregar notificación visual si existe la función
+                if (typeof addImprovedNotification === 'function') {
+                    addImprovedNotification();
+                }
+            }
+        }
+    } catch (error) {
+        console.log('ℹ️ No hay CV mejorado disponible aún');
+    }
+}
+
+// Cargar resultados al iniciar
+document.addEventListener('DOMContentLoaded', () => {
+    loadResults();
+    
+    // Verificar si se debe abrir el modal del CV mejorado automáticamente
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openImproved') === 'true') {
+        setTimeout(() => {
+            if (typeof openImprovedResultsModal === 'function') {
+                openImprovedResultsModal();
+            }
+        }, 1000);
+    }
+    
+    // Event listener para Enter en textarea
+    const answerInput = document.getElementById('answerInput');
+    if (answerInput) {
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                nextQuestion();
+            }
+        });
+    }
+});
