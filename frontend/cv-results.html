@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resultados del Análisis - CV Analyzer</title>
-    
+    <meta name="description"
+        content="Resultados del análisis de tu currículum con puntuación detallada y recomendaciones personalizadas">
+    <title>Resultados del Análisis - AutoCV IA</title>
+
     <!-- CSS Externos -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/cv-results.css">
     <link rel="stylesheet" href="css/cv-improvement-modal.css">
     <link rel="stylesheet" href="css/cv-improved-modal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/config.js"></script>
 </head>
+
 <body>
     <div class="results-container">
         <!-- Navegación -->
@@ -23,7 +27,8 @@
             <a href="#" id="backButton" class="back-button">
                 <i class="fas fa-arrow-left"></i> <span id="backText">Volver al Dashboard</span>
             </a>
-            <a href="#" id="switchViewButton" class="pdf-button" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <a href="#" id="switchViewButton" class="pdf-button"
+                style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <i class="fas fa-exchange-alt"></i> <span id="switchViewText">Ir a Dashboard</span>
             </a>
         </div>
@@ -45,11 +50,13 @@
                     <a href="#" id="pdfLink" class="pdf-button" target="_blank">
                         <i class="fas fa-file-pdf"></i> Ver Reporte PDF
                     </a>
-                    <button id="improveCvButton" onclick="openImprovementModal()" class="improve-cv-button" style="display: none;">
+                    <button id="improveCvButton" onclick="openImprovementModal()" class="improve-cv-button"
+                        style="display: none;">
                         <i class="fas fa-rocket"></i> Mejorar mi CV
                         <span class="button-subtitle">Responde preguntas personalizadas</span>
                     </button>
-                    <button id="viewImprovedButton" onclick="openImprovedResultsModal()" class="view-improved-button" style="display: none;">
+                    <button id="viewImprovedButton" onclick="openImprovedResultsModal()" class="view-improved-button"
+                        style="display: none;">
                         <i class="fas fa-sparkles"></i> Ver Resultados
                         <span class="button-subtitle">CV Mejorado</span>
                     </button>
@@ -107,7 +114,8 @@
                         <i class="fas fa-lightbulb"></i>
                     </div>
                     <h3 class="cta-title">¿Listo para llevar tu CV al siguiente nivel?</h3>
-                    <p class="cta-description">Responde preguntas personalizadas basadas en tu CV y recibe recomendaciones específicas para mejorar tu perfil profesional.</p>
+                    <p class="cta-description">Responde preguntas personalizadas basadas en tu CV y recibe
+                        recomendaciones específicas para mejorar tu perfil profesional.</p>
                     <button onclick="openImprovementModal()" class="improve-cv-button-large">
                         <i class="fas fa-rocket"></i> Comenzar Mejora Personalizada
                         <span class="button-shine"></span>
@@ -123,12 +131,14 @@
         <div class="modal-content-improvement">
             <div class="modal-header-improvement">
                 <h2><i class="fas fa-comments"></i> Mejora Personalizada de tu CV</h2>
-                <p class="modal-subtitle">Responde estas preguntas con claridad y detalle para recibir recomendaciones precisas</p>
+                <p class="modal-subtitle">Responde estas preguntas con claridad y detalle para recibir recomendaciones
+                    precisas</p>
                 <div class="modal-tips">
-                    <p><i class="fas fa-info-circle"></i> <strong>Consejos:</strong> Sé específico, usa ejemplos concretos y cuantifica tus logros cuando sea posible</p>
+                    <p><i class="fas fa-info-circle"></i> <strong>Consejos:</strong> Sé específico, usa ejemplos
+                        concretos y cuantifica tus logros cuando sea posible</p>
                 </div>
             </div>
-            
+
             <div class="progress-bar">
                 <div class="progress-fill" id="progressBar"></div>
                 <span class="progress-text" id="progressText">Pregunta 1 de <span id="totalQuestions">0</span></span>
@@ -141,13 +151,10 @@
                         <div class="question-section" id="questionSection">SECCIÓN</div>
                     </div>
                     <div class="question-text" id="questionText">Cargando pregunta...</div>
-                    
-                    <textarea 
-                        id="answerInput" 
-                        class="answer-input" 
+
+                    <textarea id="answerInput" class="answer-input"
                         placeholder="Escribe una respuesta clara y detallada. Ejemplo: 'Lideré un equipo de 5 personas en el desarrollo de una aplicación móvil que alcanzó 10,000 descargas en 3 meses, aumentando las ventas en un 25%'..."
-                        rows="5"
-                    ></textarea>
+                        rows="5"></textarea>
 
                     <div class="modal-actions">
                         <button onclick="skipQuestion()" class="btn-skip">
@@ -174,7 +181,8 @@
             </div>
             <h3 style="margin-top: 2rem;">Generando tu CV mejorado...</h3>
             <p style="color: #6b7280; margin-top: 1rem;">Este proceso puede tomar unos momentos</p>
-            <div class="progress-steps" style="margin-top: 2rem; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto;">
+            <div class="progress-steps"
+                style="margin-top: 2rem; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto;">
                 <div style="display: flex; align-items: center; margin-bottom: 1rem;">
                     <i class="fas fa-check-circle" style="color: #10b981; margin-right: 0.5rem;"></i>
                     <span>Procesando respuestas</span>
@@ -199,7 +207,7 @@
             <button class="btn-close-modal-minimal" onclick="closeImprovedResultsModal()">
                 <i class="fas fa-times"></i>
             </button>
-            
+
             <!-- Encabezado con mensaje principal -->
             <div class="improved-modal-header">
                 <div class="success-icon-minimal">
@@ -231,4 +239,5 @@
     <script src="js/cv-improvement-modal.js"></script>
     <script src="js/cv-improved-modal.js"></script>
 </body>
+
 </html>

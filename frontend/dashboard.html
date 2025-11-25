@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Dashboard de AutoCV IA">
   <title>Dashboard - AutoCV IA</title>
-  
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  
+
   <!-- Estilos -->
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/cv-improved-modal.css">
 </head>
+
 <body>
   <!-- Header -->
   <header class="header">
@@ -27,11 +31,13 @@
         AutoCV IA
       </a>
       <div class="auth-buttons">
-        <span id="user-email-display" style="color: var(--primary-color); display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+        <span id="user-email-display"
+          style="color: var(--primary-color); display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
           <i class="fas fa-user-circle"></i>
           <span class="user-email-text"></span>
         </span>
-        <button id="adminPanelBtn" onclick="window.location.href='admin.html'" class="btn btn-primary" style="display: none;">
+        <button id="adminPanelBtn" onclick="window.location.href='admin.html'" class="btn btn-primary"
+          style="display: none;">
           <i class="fas fa-shield-alt"></i>
           <span class="btn-text">Panel Admin</span>
         </button>
@@ -62,7 +68,10 @@
       <!-- Upload Section -->
       <div class="upload-section">
         <h2><i class="fas fa-cloud-upload-alt"></i> Subir Currículum</h2>
-        <p style="color: #666; margin-bottom: 1.5rem;">Carga tu CV en formato PDF para su análisis</p>
+        <p style="color: var(--gray-color); margin-bottom: 1.5rem; line-height: 1.6;">
+          Carga tu CV en formato PDF para recibir un análisis completo con puntuación detallada,
+          identificación de áreas de mejora y recomendaciones personalizadas para optimizar tu perfil profesional.
+        </p>
 
         <div id="upload-alert-container"></div>
 
@@ -99,8 +108,10 @@
           <!-- Aquí se cargarán los archivos -->
           <div class="empty-state">
             <i class="fas fa-folder-open"></i>
-            <p>Aún no has subido ningún currículum</p>
-            <small>Sube tu primer CV para comenzar el análisis</small>
+            <p style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--gray-color);">Aún no has subido ningún
+              currículum</p>
+            <small style="color: var(--gray-light);">Sube tu primer CV para comenzar el análisis y recibir
+              retroalimentación profesional</small>
           </div>
         </div>
       </div>
@@ -109,7 +120,7 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <p>&copy; 2025 AutoCV IA &ndash; Mejora tu perfil profesional</p>
+    <p>&copy; 2025 AutoCV IA &ndash; Potencia tu carrera profesional con inteligencia artificial</p>
     <p>
       <a href="#"><i class="fas fa-shield-alt"></i> Privacidad</a> |
       <a href="#"><i class="fas fa-file-contract"></i> Términos</a> |
@@ -122,4 +133,5 @@
   <script src="js/cv-improved-modal.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
+
 </html>
