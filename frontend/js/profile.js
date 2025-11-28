@@ -2,7 +2,7 @@
 let currentAvatarFile = null;
 let currentAvatarUrl = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   // Verificar autenticación
   if (!isAuthenticated()) {
     window.location.href = 'login.html';
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadUserInfo() {
   const userInfo = getUserInfo();
   const emailElements = document.querySelectorAll('.user-email-text');
-  
+
   emailElements.forEach(el => {
     el.textContent = userInfo.email;
   });
@@ -44,7 +44,7 @@ function loadUserInfo() {
 function updateResponsiveElements() {
   const emailTexts = document.querySelectorAll('.user-email-text');
   const btnTexts = document.querySelectorAll('.btn-text');
-  
+
   if (window.innerWidth <= 768) {
     emailTexts.forEach(el => {
       if (el.closest('.user-menu')) {
@@ -75,18 +75,18 @@ async function loadProfile() {
 
     if (data.success && data.profile) {
       const profile = data.profile;
-      
+
       // Llenar formulario
       document.getElementById('profile-name').value = profile.full_name || '';
-      
+
       // Actualizar sidebar
       document.getElementById('sidebar-name').textContent = profile.full_name || 'Usuario';
       document.getElementById('sidebar-email').textContent = profile.email;
-      
+
       // Mostrar avatar si existe
       if (profile.avatar_url) {
         currentAvatarUrl = profile.avatar_url;
-        const avatarSrc = profile.avatar_url.startsWith('http') ? profile.avatar_url : `http://localhost:3000${profile.avatar_url}`;
+        const avatarSrc = profile.avatar_url.startsWith('http') ? profile.avatar_url : `${getBaseUrl()}${profile.avatar_url}`;
         document.getElementById('avatar-img').src = avatarSrc;
       } else {
         // Avatar por defecto con iniciales
@@ -118,7 +118,7 @@ async function loadProfile() {
 
 function handleAvatarSelect(e) {
   const file = e.target.files[0];
-  
+
   if (!file) return;
 
   // Validar tipo de archivo
@@ -139,23 +139,23 @@ function handleAvatarSelect(e) {
 
   // Mostrar vista previa
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = function (e) {
     document.getElementById('avatar-img').src = e.target.result;
   };
   reader.readAsDataURL(file);
-  
+
   showAlert('info', 'Imagen seleccionada. Haz clic en "Guardar Cambios" para subirla.');
 }
 
 function removeAvatar() {
   currentAvatarFile = null;
   currentAvatarUrl = null;
-  
+
   // Restaurar avatar por defecto
   const name = document.getElementById('profile-name').value || 'Usuario';
   const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   document.getElementById('avatar-img').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&size=200&background=3498db&color=fff`;
-  
+
   document.getElementById('profile-avatar').value = '';
 }
 
@@ -189,7 +189,7 @@ async function handleSubmit(e) {
     // Si hay un archivo nuevo, subirlo primero
     if (currentAvatarFile) {
       showAlert('info', 'Subiendo imagen...');
-      
+
       const uploadFormData = new FormData();
       uploadFormData.append('avatar', currentAvatarFile);
 
@@ -229,7 +229,7 @@ async function handleSubmit(e) {
 
     if (data.success) {
       showAlert('success', '¡Perfil actualizado exitosamente!');
-      
+
       // Actualizar localStorage
       const userInfo = getUserInfo();
       userInfo.full_name = fullName;
@@ -264,15 +264,15 @@ function logout() {
 
 function showAlert(type, message) {
   const container = document.getElementById('alert-container');
-  const alertClass = type === 'success' ? 'alert-success' : 
-                     type === 'warning' ? 'alert-warning' : 
-                     type === 'info' ? 'alert-info' :
-                     'alert-error';
-  const icon = type === 'success' ? 'fa-check-circle' : 
-               type === 'warning' ? 'fa-exclamation-triangle' : 
-               type === 'info' ? 'fa-info-circle' :
-               'fa-exclamation-circle';
-  
+  const alertClass = type === 'success' ? 'alert-success' :
+    type === 'warning' ? 'alert-warning' :
+      type === 'info' ? 'alert-info' :
+        'alert-error';
+  const icon = type === 'success' ? 'fa-check-circle' :
+    type === 'warning' ? 'fa-exclamation-triangle' :
+      type === 'info' ? 'fa-info-circle' :
+        'fa-exclamation-circle';
+
   container.innerHTML = `
     <div class="alert ${alertClass}">
       <i class="fas ${icon}"></i>

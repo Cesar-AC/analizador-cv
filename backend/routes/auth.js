@@ -51,16 +51,16 @@ router.post('/register', async (req, res) => {
     const { email, password, fullName, role } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Email y contraseña son requeridos' 
+      return res.status(400).json({
+        success: false,
+        message: 'Email y contraseña son requeridos'
       });
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'La contraseña debe tener al menos 6 caracteres' 
+      return res.status(400).json({
+        success: false,
+        message: 'La contraseña debe tener al menos 6 caracteres'
       });
     }
 
@@ -76,16 +76,16 @@ router.post('/register', async (req, res) => {
           full_name: fullName || '',
           role: userRole
         },
-        emailRedirectTo: 'http://localhost:3000/dashboard.html'
+        emailRedirectTo: process.env.FRONTEND_URL || 'http://localhost:3000' + '/dashboard.html'
       }
     });
 
     if (error) {
       console.error('Error en registro:', error);
-      return res.status(400).json({ 
-        success: false, 
-        message: error.message === 'User already registered' 
-          ? 'Este email ya está registrado' 
+      return res.status(400).json({
+        success: false,
+        message: error.message === 'User already registered'
+          ? 'Este email ya está registrado'
           : error.message
       });
     }
@@ -103,9 +103,9 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Error en /register:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor' 
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -116,9 +116,9 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Email y contraseña son requeridos' 
+      return res.status(400).json({
+        success: false,
+        message: 'Email y contraseña son requeridos'
       });
     }
 
@@ -129,10 +129,10 @@ router.post('/login', async (req, res) => {
 
     if (error) {
       console.error('Error en login:', error);
-      return res.status(401).json({ 
-        success: false, 
-        message: error.message === 'Invalid login credentials' 
-          ? 'Email o contraseña incorrectos' 
+      return res.status(401).json({
+        success: false,
+        message: error.message === 'Invalid login credentials'
+          ? 'Email o contraseña incorrectos'
           : 'Error al iniciar sesión'
       });
     }
@@ -177,9 +177,9 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Error en /login:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor' 
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -188,24 +188,24 @@ router.post('/login', async (req, res) => {
 router.get('/verify', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Token no proporcionado' 
+      return res.status(401).json({
+        success: false,
+        message: 'Token no proporcionado'
       });
     }
 
     const token = authHeader.replace('Bearer ', '');
-    
+
     // Usar supabase regular con el token del usuario
     const { data: { user }, error } = await supabase.auth.getUser(token);
 
     if (error || !user) {
       console.log('Error validando usuario:', error);
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Token inválido' 
+      return res.status(401).json({
+        success: false,
+        message: 'Token inválido'
       });
     }
 
@@ -227,9 +227,9 @@ router.get('/verify', async (req, res) => {
     });
   } catch (error) {
     console.error('Error en /verify:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor' 
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -238,24 +238,24 @@ router.get('/verify', async (req, res) => {
 router.get('/profile', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'No autorizado' 
+      return res.status(401).json({
+        success: false,
+        message: 'No autorizado'
       });
     }
 
     const token = authHeader.replace('Bearer ', '');
-    
+
     // Usar supabase regular con el token del usuario
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
       console.log('Error validando usuario:', userError);
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Token inválido' 
+      return res.status(401).json({
+        success: false,
+        message: 'Token inválido'
       });
     }
 
@@ -268,9 +268,9 @@ router.get('/profile', async (req, res) => {
 
     if (profileError) {
       console.log('Error obteniendo perfil:', profileError);
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Perfil no encontrado' 
+      return res.status(404).json({
+        success: false,
+        message: 'Perfil no encontrado'
       });
     }
 
@@ -280,9 +280,9 @@ router.get('/profile', async (req, res) => {
     });
   } catch (error) {
     console.error('Error en /profile:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor' 
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -291,24 +291,24 @@ router.get('/profile', async (req, res) => {
 router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'No autorizado' 
+      return res.status(401).json({
+        success: false,
+        message: 'No autorizado'
       });
     }
 
     const token = authHeader.replace('Bearer ', '');
-    
+
     // Usar supabase regular con el token del usuario
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
       console.log('Error validando usuario:', userError);
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Token inválido' 
+      return res.status(401).json({
+        success: false,
+        message: 'Token inválido'
       });
     }
 
@@ -343,9 +343,9 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
     });
   } catch (error) {
     console.error('Error en /upload-avatar:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message || 'Error interno del servidor' 
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error interno del servidor'
     });
   }
 });
@@ -354,24 +354,24 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
 router.patch('/profile', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'No autorizado' 
+      return res.status(401).json({
+        success: false,
+        message: 'No autorizado'
       });
     }
 
     const token = authHeader.replace('Bearer ', '');
-    
+
     // Usar supabase regular con el token del usuario
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
       console.log('Error validando usuario:', userError);
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Token inválido' 
+      return res.status(401).json({
+        success: false,
+        message: 'Token inválido'
       });
     }
 
@@ -398,9 +398,9 @@ router.patch('/profile', async (req, res) => {
 
     if (profileError) {
       console.error('Error al actualizar perfil:', profileError);
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Error al actualizar el perfil' 
+      return res.status(500).json({
+        success: false,
+        message: 'Error al actualizar el perfil'
       });
     }
 
@@ -411,9 +411,9 @@ router.patch('/profile', async (req, res) => {
     });
   } catch (error) {
     console.error('Error en PATCH /profile:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor' 
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -422,11 +422,11 @@ router.patch('/profile', async (req, res) => {
 router.get('/curriculums', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'No autorizado' 
+      return res.status(401).json({
+        success: false,
+        message: 'No autorizado'
       });
     }
 
@@ -435,9 +435,9 @@ router.get('/curriculums', async (req, res) => {
 
     if (userError || !user) {
       console.log('Error validando usuario:', userError);
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Token inválido' 
+      return res.status(401).json({
+        success: false,
+        message: 'Token inválido'
       });
     }
 
@@ -450,8 +450,8 @@ router.get('/curriculums', async (req, res) => {
 
     if (cvError) {
       console.error('Error obteniendo curriculums:', cvError);
-      return res.status(500).json({ 
-        success: false, 
+      return res.status(500).json({
+        success: false,
         message: 'Error al obtener currículums',
         error: cvError.message
       });
@@ -463,8 +463,8 @@ router.get('/curriculums', async (req, res) => {
     });
   } catch (error) {
     console.error('Error en /auth/curriculums:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: 'Error al obtener currículums',
       error: error.message
     });
@@ -475,11 +475,11 @@ router.get('/curriculums', async (req, res) => {
 router.get('/curriculums/:id/download', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'No autorizado' 
+      return res.status(401).json({
+        success: false,
+        message: 'No autorizado'
       });
     }
 
@@ -487,9 +487,9 @@ router.get('/curriculums/:id/download', async (req, res) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Token inválido' 
+      return res.status(401).json({
+        success: false,
+        message: 'Token inválido'
       });
     }
 
@@ -504,9 +504,9 @@ router.get('/curriculums/:id/download', async (req, res) => {
       .single();
 
     if (error || !curriculum) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Curriculum no encontrado' 
+      return res.status(404).json({
+        success: false,
+        message: 'Curriculum no encontrado'
       });
     }
 
@@ -517,9 +517,9 @@ router.get('/curriculums/:id/download', async (req, res) => {
 
     if (downloadError || !fileData) {
       console.error('Error al descargar desde Storage:', downloadError);
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Archivo no encontrado en el almacenamiento' 
+      return res.status(404).json({
+        success: false,
+        message: 'Archivo no encontrado en el almacenamiento'
       });
     }
 
@@ -535,9 +535,9 @@ router.get('/curriculums/:id/download', async (req, res) => {
     res.send(buffer);
   } catch (error) {
     console.error('Error en /auth/curriculums/:id/download:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error al descargar el curriculum' 
+    res.status(500).json({
+      success: false,
+      message: 'Error al descargar el curriculum'
     });
   }
 });

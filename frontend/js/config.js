@@ -4,8 +4,38 @@ const SUPABASE_CONFIG = {
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjcGJlb3FmeWZvY2d4dGZndnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2ODI3NzQsImV4cCI6MjA3NzI1ODc3NH0.QmQ71fj9enSHzg5PPVqsWRtMv4YXq67Ojd58CeBhhn8'
 };
 
-// URL base de la API
-const API_BASE_URL = 'http://localhost:3000/api';
+// Detectar entorno automáticamente
+function getEnvironment() {
+  const hostname = window.location.hostname;
+
+  // Si es localhost o 127.0.0.1, estamos en desarrollo
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'development';
+  }
+
+  // Cualquier otro hostname es producción
+  return 'production';
+}
+
+// Obtener URL base según el entorno
+function getBaseUrl() {
+  const env = getEnvironment();
+
+  if (env === 'development') {
+    return 'http://localhost:3000';
+  }
+
+  // En producción, usar la URL actual del navegador
+  return window.location.origin;
+}
+
+// Obtener URL de la API
+function getApiUrl() {
+  return `${getBaseUrl()}/api`;
+}
+
+// URL base de la API (compatible con código existente)
+const API_BASE_URL = getApiUrl();
 
 // Función para obtener el token de sesión
 function getAuthToken() {
@@ -50,4 +80,11 @@ function getUserInfo() {
 // Función para verificar si el usuario es admin
 function isAdmin() {
   return getUserInfo().role === 'admin';
+}
+
+// Log del entorno actual (solo en desarrollo)
+if (getEnvironment() === 'development') {
+  console.log('🔧 Entorno:', getEnvironment());
+  console.log('🌐 Base URL:', getBaseUrl());
+  console.log('🔌 API URL:', getApiUrl());
 }
