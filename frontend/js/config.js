@@ -1,7 +1,10 @@
 // Configuración de Supabase para el frontend
+// Configuración de Supabase para el frontend
+// NOTA: El frontend no conecta directamente con Supabase, todo pasa por el backend.
+// Estas variables se mantienen por compatibilidad si en el futuro se requiere acceso directo.
 const SUPABASE_CONFIG = {
-  url: 'https://qcpbeoqfyfocgxtfgvtc.supabase.co',
-  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjcGJlb3FmeWZvY2d4dGZndnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2ODI3NzQsImV4cCI6MjA3NzI1ODc3NH0.QmQ71fj9enSHzg5PPVqsWRtMv4YXq67Ojd58CeBhhn8'
+  url: '', // Se maneja en el backend
+  anonKey: '' // Se maneja en el backend
 };
 
 // Detectar entorno automáticamente
