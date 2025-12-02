@@ -233,8 +233,8 @@ async function loadHistory() {
     </div>
   `;
 
-  // Configuración de paginación
-  const ITEMS_PER_PAGE = 6;
+  // Configuración de paginación responsive
+  const ITEMS_PER_PAGE = window.innerWidth <= 480 ? 3 : 6;
   let currentPage = 1;
   let allFiles = [];
 

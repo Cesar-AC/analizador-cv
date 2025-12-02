@@ -1,0 +1,388 @@
+/* ===========================
+   DARK MODE FIX
+   =========================== */
+/* Forzar esquema de colores custom independiente del modo oscuro del sistema */
+:root {
+    color-scheme: light dark;
+}
+
+/* Prevenir que el modo oscuro del sistema distorsione los colores */
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: light;
+    }
+
+    body {
+        background: var(--navy) !important;
+        color: var(--text-secondary) !important;
+    }
+
+    /* Forzar colores en inputs y selects */
+    input,
+    select,
+    textarea {
+        background: var(--lightest-navy) !important;
+        color: var(--text-main) !important;
+        border-color: var(--border-color) !important;
+    }
+}
+
+/* ===========================
+   MOBILE OPTIMIZATIONS (Max Width 480px)
+   =========================== */
+@media (max-width: 480px) {
+
+    /* Header Compacto */
+    .header {
+        padding: 0.5rem 1rem;
+    }
+
+    .header-container {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    .logo {
+        font-size: 1.1rem;
+    }
+
+    .logo span {
+        display: none;
+    }
+
+    .logo i {
+        font-size: 1.25rem;
+    }
+
+    .auth-buttons .btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    /* Dashboard Header & Layout */
+    .dashboard {
+        padding: 5rem 1rem 2rem;
+    }
+
+    .dashboard-grid {
+        gap: 1.5rem;
+    }
+
+    .dashboard-card {
+        padding: 1.25rem;
+    }
+
+    .dashboard-card h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Upload Section */
+    .upload-section {
+        padding: 1.5rem 1rem;
+    }
+
+    .upload-area {
+        padding: 1.5rem 1rem;
+        margin-top: 1rem;
+    }
+
+    .upload-area i {
+        font-size: 2rem;
+    }
+
+    .upload-area p {
+        font-size: 0.9rem;
+    }
+
+    /* History Cards Optimization */
+    .history-item-card {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+
+    .history-card-header {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .history-file-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+
+    .history-file-name {
+        font-size: 0.95rem;
+        margin-bottom: 0.1rem;
+    }
+
+    .history-file-meta {
+        gap: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    /* Score Badge Compacto */
+    .history-score {
+        width: 60px !important;
+        height: 60px !important;
+        min-width: 60px !important;
+        min-height: 60px !important;
+        padding: 0.25rem;
+        border-width: 2px !important;
+    }
+
+    .history-score-value {
+        font-size: 1.2rem !important;
+    }
+
+    .history-score i {
+        font-size: 0.8rem;
+    }
+
+    .history-score-label {
+        display: none;
+    }
+
+    /* Status Badge */
+    .history-card-body {
+        margin-top: 0.25rem;
+    }
+
+    .history-status-badge {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    /* Actions Buttons Grid */
+    .history-card-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .history-action-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
+    .history-action-btn:last-child:nth-child(3) {
+        grid-column: span 2;
+    }
+
+    /* Footer */
+    .footer {
+        padding: 1.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    /* Hero Section Mobile */
+    .hero {
+        padding: 6rem 1rem 3rem;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem !important;
+        line-height: 1.2;
+    }
+
+    .hero-content .subtitle {
+        font-size: 1rem;
+    }
+
+    .hero-content p {
+        font-size: 0.95rem;
+    }
+
+    /* Features Grid */
+    .features {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .feature-card {
+        padding: 1.5rem;
+    }
+
+    .feature-card i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+        font-size: 1.2rem;
+    }
+
+    /* Steps Grid */
+    .steps-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .step-card {
+        padding: 1.5rem;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    /* Benefits Grid */
+    .benefits-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .benefit-card {
+        padding: 1.25rem;
+        gap: 1rem;
+    }
+
+    .benefit-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+
+    /* CTA Section */
+    .cta-box,
+    .cta-box-integrated {
+        padding: 2rem 1.5rem;
+    }
+
+    .cta-box h2,
+    .cta-box-integrated h2 {
+        font-size: 1.5rem;
+    }
+
+    .cta-box p,
+    .cta-box-integrated p {
+        font-size: 0.95rem;
+    }
+
+    /* Combined CTA Creator Section */
+    .combined-cta-creator-section .section-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .creator-info-integrated {
+        padding: 1.5rem;
+    }
+
+    .creator-info-integrated h3 {
+        font-size: 1.4rem;
+    }
+
+    /* Auth Pages */
+    .auth-container {
+        padding: 1rem;
+    }
+
+    .auth-box {
+        padding: 1.5rem;
+    }
+
+    .auth-box h2 {
+        font-size: 1.5rem;
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px;
+        padding: 0.75rem;
+    }
+
+    /* Buttons Touch Targets */
+    .btn {
+        min-height: 44px;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .btn i {
+        font-size: 0.9rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+    }
+
+    /* Section Headers */
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .section-header p {
+        font-size: 0.9rem;
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+        padding: 1.5rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-header p {
+        font-size: 0.9rem;
+    }
+}
+
+/* ===========================
+   TABLET OPTIMIZATIONS (481px - 768px)
+   =========================== */
+@media (min-width: 481px) and (max-width: 768px) {
+    .history-card-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .history-score {
+        width: 75px !important;
+        height: 75px !important;
+        min-width: 75px !important;
+        min-height: 75px !important;
+    }
+
+    .history-score-value {
+        font-size: 1.5rem !important;
+    }
+
+    .history-card-actions {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .history-action-btn {
+        flex: 1;
+        min-width: 140px;
+    }
+}
