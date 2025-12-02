@@ -142,20 +142,22 @@ function displayResults(cv, isAdmin) {
         const switchViewText = document.getElementById('switchViewText');
 
         if (isAdmin) {
-            backButton.href = 'admin.html';
-            backText.textContent = 'Volver a Admin';
-            switchViewButton.style.display = 'inline-flex';
-            switchViewButton.href = 'dashboard.html';
-            switchViewText.textContent = 'Ir a Dashboard Usuario';
+            if (backButton) backButton.href = 'admin.html';
+            if (backText) backText.textContent = 'Volver a Admin';
+            if (switchViewButton) {
+                switchViewButton.style.display = 'inline-flex';
+                switchViewButton.href = 'dashboard.html';
+            }
+            if (switchViewText) switchViewText.textContent = 'Ir a Dashboard Usuario';
 
             const improveCvButton = document.getElementById('improveCvButton');
             const ctaSection = document.getElementById('ctaSection');
             if (improveCvButton) improveCvButton.style.display = 'none';
             if (ctaSection) ctaSection.style.display = 'none';
         } else {
-            backButton.href = 'dashboard.html';
-            backText.textContent = 'Volver al Dashboard';
-            switchViewButton.style.display = 'none';
+            if (backButton) backButton.href = 'dashboard.html';
+            if (backText) backText.textContent = 'Volver al Dashboard';
+            if (switchViewButton) switchViewButton.style.display = 'none';
 
             const improveCvButton = document.getElementById('improveCvButton');
             const ctaSection = document.getElementById('ctaSection');
@@ -172,52 +174,66 @@ function displayResults(cv, isAdmin) {
         }
 
         // Puntaje total
-        document.getElementById('totalScore').textContent = analysis.meta.puntaje_total;
+        const totalScoreEl = document.getElementById('totalScore');
+        if (totalScoreEl) totalScoreEl.textContent = analysis.meta.puntaje_total;
 
         // Link del PDF
-        if (analysis.meta.links?.pdf_url) {
-            document.getElementById('pdfLink').href = analysis.meta.links.pdf_url;
-        } else {
-            document.getElementById('pdfLink').style.display = 'none';
+        const pdfLink = document.getElementById('pdfLink');
+        if (pdfLink) {
+            if (analysis.meta.links?.pdf_url) {
+                pdfLink.href = analysis.meta.links.pdf_url;
+            } else {
+                pdfLink.style.display = 'none';
+            }
         }
 
         // Detalles de puntuación
         const detailScores = document.getElementById('detailScores');
         const details = analysis.meta.detalle;
-        detailScores.innerHTML = Object.entries(details).map(([key, value]) => `
-            <div class="detail-score">
-                <span class="detail-score-label">${formatLabel(key)}</span>
-                <span class="detail-score-value">${value}/100</span>
-            </div>
-        `).join('');
+        if (detailScores && details) {
+            detailScores.innerHTML = Object.entries(details).map(([key, value]) => `
+                <div class="detail-score">
+                    <span class="detail-score-label">${formatLabel(key)}</span>
+                    <span class="detail-score-value">${value}/100</span>
+                </div>
+            `).join('');
+        }
 
         // Crear gráficos
-        createCategoryChart(details);
-        createDoughnutChart(details, analysis.meta.puntaje_total);
+        if (details) {
+            createCategoryChart(details);
+            createDoughnutChart(details, analysis.meta.puntaje_total);
+        }
 
         // Secciones detectadas
         const sectionsList = document.getElementById('sectionsList');
-        sectionsList.innerHTML = analysis.meta.secciones_detectadas.map(section => `
-            <div class="section-item">
-                <i class="fas fa-check-circle"></i> ${section}
-            </div>
-        `).join('');
+        if (sectionsList && analysis.meta.secciones_detectadas) {
+            sectionsList.innerHTML = analysis.meta.secciones_detectadas.map(section => `
+                <div class="section-item">
+                    <i class="fas fa-check-circle"></i> ${section}
+                </div>
+            `).join('');
+        }
 
         // Debilidades
         const weaknessesList = document.getElementById('weaknessesList');
-        weaknessesList.innerHTML = analysis.resumen.debilidades.map(weakness => `
-            <div class="weakness-item">
-                <i class="fas fa-exclamation-circle"></i> ${weakness}
-            </div>
-        `).join('');
+        if (weaknessesList && analysis.resumen?.debilidades) {
+            weaknessesList.innerHTML = analysis.resumen.debilidades.map(weakness => `
+                <div class="weakness-item">
+                    <i class="fas fa-exclamation-circle"></i> ${weakness}
+                </div>
+            `).join('');
+        }
 
         // Recomendaciones generales
         const recommendationsList = document.getElementById('recommendationsList');
-        recommendationsList.innerHTML = analysis.resumen.recomendaciones.map(rec => `
-            <div class="recommendation-item">
-                <i class="fas fa-star"></i> ${rec}
-            </div>
-        `).join('');
+        if (recommendationsList && analysis.resumen?.recomendaciones) {
+            recommendationsList.innerHTML = analysis.resumen.recomendaciones.map(rec => `
+                <div class="recommendation-item">
+                    <i class="fas fa-star"></i> ${rec}
+                </div>
+            `).join('');
+        }
     } catch (error) {
         console.error('Error en displayResults:', error);
         alert('Error al mostrar los resultados: ' + error.message);
