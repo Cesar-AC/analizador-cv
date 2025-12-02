@@ -27,14 +27,11 @@ const verifyAdmin = async (req, res, next) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
-      console.log('❌ Error validando token:', userError?.message || 'Usuario no encontrado');
       return res.status(401).json({ 
         success: false, 
         message: 'Token inválido' 
       });
     }
-
-    console.log('✅ Usuario autenticado:', user.email);
 
     // Verificar role en la tabla profiles - SIMPLE QUERY
     const { data: profile, error: profileError } = await supabase
@@ -44,8 +41,6 @@ const verifyAdmin = async (req, res, next) => {
       .single();
 
     if (profileError) {
-      console.log('❌ Error obteniendo perfil:', profileError.message);
-      console.log('❌ Detalles del error:', profileError);
       return res.status(500).json({ 
         success: false, 
         message: 'Error al verificar permisos' 
@@ -53,15 +48,11 @@ const verifyAdmin = async (req, res, next) => {
     }
 
     if (!profile || profile.role !== 'admin') {
-      console.log('❌ Usuario no es admin. Role:', profile?.role || 'no encontrado');
-      console.log('❌ Profile completo:', profile);
       return res.status(403).json({ 
         success: false, 
         message: 'Acceso denegado. Se requieren permisos de administrador.' 
       });
     }
-
-    console.log('✅ Usuario admin verificado:', user.email);
 
     req.user = user;
     next();

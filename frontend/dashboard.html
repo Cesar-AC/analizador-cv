@@ -65,13 +65,12 @@
         </div>
       </div>
 
-      <!-- Upload Section -->
-      <div class="upload-section">
-        <h2><i class="fas fa-cloud-upload-alt"></i> Subir Currículum</h2>
-        <p style="color: var(--gray-color); margin-bottom: 1.5rem; line-height: 1.6;">
-          Carga tu CV en formato PDF para recibir un análisis completo con puntuación detallada,
-          identificación de áreas de mejora y recomendaciones personalizadas para optimizar tu perfil profesional.
-        </p>
+      <!-- Upload Section (Full Width Block) -->
+      <section class="upload-section-block">
+        <div class="section-block-header">
+          <h2><i class="fas fa-cloud-upload-alt"></i> Subir Currículum</h2>
+          <p>Carga tu CV en formato PDF para recibir un análisis completo con puntuación detallada.</p>
+        </div>
 
         <div id="upload-alert-container"></div>
 
@@ -95,42 +94,46 @@
           </button>
         </div>
 
-        <button id="upload-btn" class="btn btn-primary" onclick="uploadFile()" disabled>
+        <button id="upload-btn" class="btn btn-primary" onclick="uploadFile()" disabled
+          style="width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1rem;">
           <i class="fas fa-upload"></i>
           Subir y analizar
         </button>
-      </div>
+      </section>
 
-      <!-- History Section -->
-      <div class="history-section">
-        <h2><i class="fas fa-history"></i> Historial de Evaluaciones</h2>
+      <!-- History Section (Full Width Block with Grid) -->
+      <section class="history-section-block">
+        <div class="section-block-header">
+          <h2><i class="fas fa-history"></i> Historial de Evaluaciones</h2>
+          <p>Tus análisis de CV y resultados</p>
+        </div>
         <div id="history-list" class="history-list">
-          <!-- Aquí se cargarán los archivos -->
+          <!-- Cards will be loaded here -->
           <div class="empty-state">
             <i class="fas fa-folder-open"></i>
-            <p style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--gray-color);">Aún no has subido ningún
-              currículum</p>
-            <small style="color: var(--gray-light);">Sube tu primer CV para comenzar el análisis y recibir
-              retroalimentación profesional</small>
+            <p style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Aún no hay evaluaciones
+            </p>
+            <small style="color: var(--text-secondary); opacity: 0.7;">Tus análisis aparecerán aquí</small>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   </main>
 
   <!-- Footer -->
   <footer class="footer">
-    <p>&copy; 2025 AutoCV IA &ndash; Potencia tu carrera profesional con inteligencia artificial</p>
-    <p>
-      <a href="#"><i class="fas fa-shield-alt"></i> Privacidad</a> |
-      <a href="#"><i class="fas fa-file-contract"></i> Términos</a> |
-      <a href="#"><i class="fas fa-envelope"></i> Contacto</a>
-    </p>
+    <div class="footer-container">
+      <p>&copy; 2025 AutoCV IA &ndash; Potencia tu carrera profesional con inteligencia artificial</p>
+      <p>
+        <a href="#" class="open-feedback-modal"><i class="fas fa-envelope"></i> Contacto y Soporte</a>
+      </p>
+    </div>
   </footer>
 
   <!-- Scripts -->
   <script src="js/config.js"></script>
   <script src="js/cv-improved-modal.js"></script>
+  <script src="js/feedback.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
 

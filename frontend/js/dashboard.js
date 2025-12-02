@@ -1,7 +1,7 @@
 // Script para el dashboard
 let selectedFile = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   // Verificar autenticación
   if (!isAuthenticated()) {
     window.location.href = 'login.html';
@@ -25,11 +25,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadUserInfo() {
   const userInfo = getUserInfo();
   const emailElements = document.querySelectorAll('#user-email, .user-email-text');
-  
+
   emailElements.forEach(el => {
     el.textContent = userInfo.email;
   });
-  
+
   // Mostrar botón de admin si el usuario es admin
   if (userInfo && userInfo.role === 'admin') {
     const adminBtn = document.getElementById('adminPanelBtn');
@@ -41,7 +41,7 @@ function loadUserInfo() {
 
 function updateResponsiveElements() {
   const userEmailText = document.querySelectorAll('.user-email-text, .btn-text');
-  
+
   if (window.innerWidth <= 768) {
     userEmailText.forEach(el => {
       if (el.classList.contains('user-email-text')) {
@@ -83,7 +83,7 @@ function setupUploadArea() {
     e.preventDefault();
     uploadArea.style.background = '';
     uploadArea.style.borderColor = '';
-    
+
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       handleFileSelect(files[0]);
@@ -160,7 +160,7 @@ async function uploadFile() {
 
     if (data.success) {
       showAlert('success', '✅ ' + (data.message || 'Tu currículum ha sido cargado y está siendo analizado por IA'), 'upload-alert-container');
-      
+
       // Limpiar formulario
       clearFile();
 
@@ -198,12 +198,12 @@ function startPollingForStatus(cvId) {
 
       if (data.success && data.file) {
         const status = data.file.status;
-        
+
         // Si ya no está processing, detener el polling y recargar
         if (status !== 'processing') {
           clearInterval(pollInterval);
           loadHistory();
-          
+
           if (status === 'completed') {
             showAlert('success', `🎉 ¡Análisis completado! Puntuación: ${data.file.score || 'N/A'}/100`, 'upload-alert-container');
           } else if (status === 'failed') {
@@ -225,6 +225,19 @@ function startPollingForStatus(cvId) {
 async function loadHistory() {
   const historyList = document.getElementById('history-list');
 
+  // Mostrar indicador de carga mientras se obtienen los datos
+  historyList.innerHTML = `
+    <div class="history-loading" role="status" aria-live="polite">
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <p>Cargando historial…</p>
+    </div>
+  `;
+
+  // Configuración de paginación
+  const ITEMS_PER_PAGE = 6;
+  let currentPage = 1;
+  let allFiles = [];
+
   try {
     const token = getAuthToken();
 
@@ -240,7 +253,7 @@ async function loadHistory() {
 
     if (data.success && data.files && data.files.length > 0) {
       // Para cada archivo completado, verificar si tiene CV mejorado
-      const filesWithImprovedStatus = await Promise.all(
+      allFiles = await Promise.all(
         data.files.map(async (file) => {
           if (file.status === 'completed') {
             try {
@@ -260,81 +273,125 @@ async function loadHistory() {
         })
       );
 
-      historyList.innerHTML = filesWithImprovedStatus.map(file => {
-        const statusColors = {
-          pending: '#ffa500',
-          processing: '#2196f3',
-          completed: '#4caf50',
-          failed: '#f44336'
-        };
-        const statusLabels = {
-          pending: 'Pendiente',
-          processing: 'Analizando...',
-          completed: 'Completado',
-          failed: 'Error'
-        };
-        const statusIcons = {
-          pending: '<i class="fas fa-clock"></i>',
-          processing: '<i class="fas fa-spinner fa-spin"></i>',
-          completed: '<i class="fas fa-check-circle"></i>',
-          failed: '<i class="fas fa-exclamation-circle"></i>'
-        };
-        const statusColor = statusColors[file.status] || '#999';
-        const statusLabel = statusLabels[file.status] || file.status;
-        const statusIcon = statusIcons[file.status] || '';
-        
-        return `
-        <div class="history-item ${file.status === 'processing' ? 'processing-animation' : ''}">
-          <div class="item-header">
-            <h4>
-              <i class="fas fa-file-pdf"></i>
-              ${file.name}
-            </h4>
-            <span class="date">
-              <i class="fas fa-calendar-alt"></i>
-              ${formatDate(file.uploadedAt)}
-            </span>
+      // Función para renderizar la página actual
+      function renderPage(page) {
+        const startIndex = (page - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const currentFiles = allFiles.slice(startIndex, endIndex);
+        const totalPages = Math.ceil(allFiles.length / ITEMS_PER_PAGE);
+
+        const filesHTML = currentFiles.map(file => {
+          const statusLabels = {
+            pending: 'Pendiente',
+            processing: 'Procesando',
+            completed: 'Completado',
+            failed: 'Error'
+          };
+
+          return `
+          <div class="history-item-card ${file.status === 'processing' ? 'processing-animation' : ''}">
+            <div class="history-card-header">
+              <div class="history-file-icon">
+                <i class="fas fa-file-pdf"></i>
+              </div>
+              <div class="history-file-info">
+                <div class="history-file-name">${file.name}</div>
+                <div class="history-file-meta">
+                  <span><i class="fas fa-calendar"></i> ${formatDate(file.uploadedAt)}</span>
+                  <span><i class="fas fa-hdd"></i> ${formatFileSize(file.size)}</span>
+                </div>
+              </div>
+              ${file.score ? `
+                <div class="history-score">
+                  <i class="fas fa-star"></i>
+                  <div>
+                    <div class="history-score-value">${file.score}</div>
+                    <div class="history-score-label">/100</div>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+            
+            <div class="history-card-body">
+              <span class="history-status-badge ${file.status}"> 
+                ${file.status === 'completed' ? '<i class="fas fa-check-circle"></i>' : ''}
+                ${file.status === 'processing' ? '<i class="fas fa-spinner fa-spin"></i>' : ''}
+                ${file.status === 'failed' ? '<i class="fas fa-exclamation-circle"></i>' : ''}
+                ${file.status === 'pending' ? '<i class="fas fa-clock"></i>' : ''}
+                ${statusLabels[file.status] || file.status}
+              </span>
+            </div>
+            
+            <div class="history-card-actions">
+              <a href="#" onclick="downloadCV('${file.id}', '${file.name}'); return false;" class="history-action-btn tertiary">
+                <i class="fas fa-download"></i>
+                Descargar CV
+              </a>
+              ${file.status === 'completed' ? `
+                <a href="#" onclick="viewResults('${file.id}'); return false;" class="history-action-btn secondary">
+                  <i class="fas fa-chart-line"></i>
+                  Ver Resultados
+                </a>
+              ` : ''}
+              ${file.hasImprovedCV ? `
+                <a href="#" onclick="openImprovedResultsModal('${file.id}'); return false;" class="history-action-btn primary">
+                  <i class="fas fa-sparkles"></i>
+                  CV Mejorado
+                </a>
+              ` : ''}
+            </div>
           </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem;">
-            <p class="file-size" style="margin: 0;">
-              <i class="fas fa-hdd"></i>
-              Tamaño: ${formatFileSize(file.size)}
-            </p>
-            <span class="status-badge" style="background: ${statusColor}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
-              ${statusIcon}
-              ${statusLabel}
-            </span>
-            ${file.score ? `<span style="color: var(--primary-color); font-weight: 600;">
-              <i class="fas fa-star"></i> Puntuación: ${file.score}/100
-            </span>` : ''}
-          </div>
-          <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button onclick="downloadCV('${file.id}', '${file.name}')" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-              <i class="fas fa-download"></i>
-              Descargar PDF
-            </button>
-            ${file.status === 'completed' ? `
-              <button onclick="viewResults('${file.id}')" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
-                <i class="fas fa-chart-line"></i>
-                Ver Resultados
+          `;
+        }).join('');
+
+        // Renderizar controles de paginación
+        let paginationHTML = '';
+        if (totalPages > 1) {
+          paginationHTML = `
+            <div class="pagination-controls">
+              <button class="pagination-btn" onclick="changePage(${page - 1})" ${page === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
               </button>
-            ` : ''}
-            ${file.hasImprovedCV ? `
-              <button onclick="openImprovedResultsModal('${file.id}')" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; position: relative;">
-                <i class="fas fa-sparkles"></i>
-                CV Mejorado
+              
+              <div class="pagination-info">
+                Página ${page} de ${totalPages} (${allFiles.length} evaluaciones)
+              </div>
+              
+              <button class="pagination-btn" onclick="changePage(${page + 1})" ${page === totalPages ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
               </button>
-            ` : ''}
+            </div>
+          `;
+        }
+
+        historyList.innerHTML = `
+          <div class="history-grid">
+            ${filesHTML}
           </div>
-        </div>
-      `;
-      }).join('');
+          ${paginationHTML}
+        `;
+      }
+
+      // Función global para cambiar de página
+      window.changePage = function (page) {
+        const totalPages = Math.ceil(allFiles.length / ITEMS_PER_PAGE);
+        if (page >= 1 && page <= totalPages) {
+          currentPage = page;
+          renderPage(currentPage);
+          // Scroll suave al inicio del historial
+          document.getElementById('history-list').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      };
+
+      // Renderizar página inicial
+      renderPage(currentPage);
+
     } else {
       historyList.innerHTML = `
         <div class="empty-state">
           <i class="fas fa-folder-open"></i>
-          <p>Aún no has subido ningún currículum</p>
-          <small>Sube tu primer CV para comenzar el análisis</small>
+          <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">Aún no hay evaluaciones</p>
+          <small>Tus análisis aparecerán aquí</small>
         </div>
       `;
     }
@@ -344,7 +401,7 @@ async function loadHistory() {
       <div class="empty-state">
         <i class="fas fa-exclamation-triangle"></i>
         <p>Error al cargar el historial</p>
-        <small>Por favor, intenta recargar la página</small>
+        <small>Por favor, recarga la página</small>
       </div>
     `;
   }
@@ -361,7 +418,7 @@ function showAlert(type, message, containerId) {
   const container = document.getElementById(containerId);
   const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
   const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-  
+
   container.innerHTML = `
     <div class="alert ${alertClass}">
       <i class="fas ${icon}"></i>
@@ -427,20 +484,20 @@ function formatProcessingTime(seconds) {
   if (seconds > 31536000) {
     return 'Error en cálculo';
   }
-  
+
   if (seconds < 60) {
     return `${seconds} seg`;
   } else if (seconds < 3600) {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return remainingSeconds > 0 
-      ? `${minutes}m ${remainingSeconds}s` 
+    return remainingSeconds > 0
+      ? `${minutes}m ${remainingSeconds}s`
       : `${minutes} min`;
   } else {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    return minutes > 0 
-      ? `${hours}h ${minutes}m` 
+    return minutes > 0
+      ? `${hours}h ${minutes}m`
       : `${hours} horas`;
   }
 }
@@ -472,7 +529,7 @@ async function downloadCV(cvId, fileName) {
     a.download = fileName;
     document.body.appendChild(a);
     a.click();
-    
+
     // Limpiar
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);

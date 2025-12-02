@@ -1,6 +1,10 @@
-# 🚀 Analizador de CV con IA
+# 🚀 AutoCV IA - Analizador y Generador de CV con IA
 
 Sistema completo de análisis y mejora de currículums vitae utilizando inteligencia artificial mediante n8n, con templates profesionales y seguimiento en tiempo real.
+
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-green)
+![License](https://img.shields.io/badge/license-ISC-lightgrey)
 
 ## 📋 Características Principales
 
@@ -8,6 +12,7 @@ Sistema completo de análisis y mejora de currículums vitae utilizando intelige
 - ✅ Registro e inicio de sesión con Supabase Auth
 - ✅ Roles de usuario (Admin y Usuario regular)
 - ✅ Panel administrativo para gestión de CVs
+- ✅ Perfiles de usuario personalizables
 
 ### 📄 Análisis de CV
 - ✅ Subida de archivos PDF de currículums
@@ -15,41 +20,100 @@ Sistema completo de análisis y mejora de currículums vitae utilizando intelige
 - ✅ Puntuación detallada (Estructura, Contenido, Formato, ATS)
 - ✅ Preguntas personalizadas por sección del CV
 - ✅ Recomendaciones específicas de mejora
+- ✅ Visualización de resultados con gráficos interactivos
 
 ### ✨ Mejora de CV
 - ✅ Sistema de preguntas interactivo con skip/next
 - ✅ Selección de 3 templates profesionales:
-  - 📋 **Harvard Classic**: Formato tradicional y elegante
-  - 💻 **MIT Technical**: Diseño moderno y técnico
-  - 🚀 **Stanford Innovative**: Formato innovador y creativo
+  - 📋 **Harvard**: Formato ejecutivo y corporativo
+  - 💻 **MIT**: Diseño moderno para Tech & Startups
+  - 🎓 **Oxford**: Estilo clásico y académico
+- ✅ Vista previa compacta de plantillas (3 en fila)
+- ✅ Scroll horizontal en móviles para selección de templates
 - ✅ Modal de confirmación con resumen
 - ✅ Polling automático cada 5 segundos
 - ✅ Generación de PDF mejorado con n8n
+- ✅ Comparación de puntajes (antes/después)
 - ✅ Descarga directa del CV mejorado
 
 ### 🎨 Interfaz de Usuario
-- ✅ Diseño responsive optimizado para móviles
-- ✅ Interfaz moderna y profesional
+- ✅ Diseño responsive optimizado para móviles y tablets
+- ✅ Dark theme moderno con paleta Navy/Green
+- ✅ Landing page atractiva con animaciones
 - ✅ Modals animados con estados visuales
 - ✅ Gráficos interactivos con Chart.js
 - ✅ Sistema de progreso en tiempo real
+- ✅ Loading spinner en historial de CVs
+- ✅ Modal de feedback y contacto integrado
+
+### 📱 Optimizaciones Móviles
+- ✅ Formularios adaptados (evita zoom en iOS)
+- ✅ Scroll horizontal para selección de templates
+- ✅ Modals responsivos con altura máxima
+- ✅ Navegación táctil optimizada
 
 ## 🛠️ Tecnologías
 
 **Frontend:**
-- HTML5, CSS3, JavaScript ES6+
-- Chart.js, Font Awesome, Google Fonts
+- HTML5, CSS3 (Custom Properties, Flexbox, Grid)
+- JavaScript ES6+ (Vanilla)
+- Chart.js para visualizaciones
+- Font Awesome 6.5.1 para iconos
+- Google Fonts (Inter, Poppins)
 
 **Backend:**
-- Node.js + Express
+- Node.js 18+ con Express
 - Supabase (Auth + Database + Storage)
-- n8n para integración con IA
+- n8n para workflows de IA
 
 **Base de Datos:**
 - PostgreSQL con JSONB
 - Row Level Security (RLS)
+- Triggers automáticos
 
-## 📦 Instalación Rápida
+## 📁 Estructura del Proyecto
+
+```
+cv/
+├── backend/
+│   ├── app.js                 # Servidor Express principal
+│   ├── routes/
+│   │   ├── admin.js           # Rutas administrativas
+│   │   ├── auth.js            # Autenticación
+│   │   └── upload.js          # Subida y análisis de CVs
+│   ├── services/
+│   │   └── supabaseClient.js  # Cliente de Supabase
+│   └── scripts/               # Scripts de utilidad
+├── frontend/
+│   ├── index.html             # Landing page
+│   ├── login.html             # Página de login
+│   ├── dashboard.html         # Panel de usuario
+│   ├── cv-results.html        # Resultados del análisis
+│   ├── admin.html             # Panel administrativo
+│   ├── profile.html           # Perfil de usuario
+│   ├── css/
+│   │   ├── styles.css         # Estilos principales
+│   │   ├── cv-results.css     # Estilos de resultados
+│   │   └── ...
+│   └── js/
+│       ├── config.js          # Configuración y API
+│       ├── auth.js            # Lógica de autenticación
+│       ├── dashboard.js       # Lógica del dashboard
+│       ├── cv-results-core.js # Visualización de resultados
+│       ├── cv-improvement-modal.js  # Modal de preguntas
+│       ├── cv-improved-modal.js     # Modal de CV mejorado
+│       └── feedback.js        # Modal de feedback
+└── uploads/                   # Archivos temporales
+```
+
+## 📦 Instalación
+
+### Prerrequisitos
+- Node.js 18 o superior
+- Cuenta en Supabase
+- Instancia de n8n configurada
+
+### Pasos
 
 ```bash
 # 1. Clonar repositorio
@@ -59,28 +123,98 @@ cd analizador-cv
 # 2. Instalar dependencias
 npm install
 
-# 3. Configurar .env (ver backend/.env.example)
-# 4. Ejecutar scripts SQL en Supabase
-# 5. Configurar n8n (ver N8N_CONFIGURACION.md)
+# 3. Crear archivo de configuración
+cp backend/.env.example backend/.env
 
-# 6. Iniciar servidor
+# 4. Configurar variables de entorno en .env:
+#    - SUPABASE_URL
+#    - SUPABASE_ANON_KEY
+#    - SUPABASE_SERVICE_ROLE_KEY
+#    - N8N_WEBHOOK_URL
+#    - N8N_IMPROVE_WEBHOOK_URL
+
+# 5. Ejecutar scripts SQL en Supabase (ver /backend/scripts/)
+
+# 6. Iniciar servidor de desarrollo
 npm run dev
 ```
 
-## 📚 Documentación
+El servidor estará disponible en `http://localhost:3000`
+
+## 🔧 Variables de Entorno
+
+```env
+# Supabase
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_ANON_KEY=tu_anon_key
+SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
+
+# n8n Webhooks
+N8N_WEBHOOK_URL=https://tu-n8n.com/webhook/analyze-cv
+N8N_IMPROVE_WEBHOOK_URL=https://tu-n8n.com/webhook/improve-cv
+
+# Servidor
+PORT=3000
+```
+
+## 📚 Documentación Adicional
 
 - [`GUIA_COMPLETA.md`](GUIA_COMPLETA.md) - Guía completa del sistema
 - [`N8N_CONFIGURACION.md`](N8N_CONFIGURACION.md) - Configuración de n8n
 - [`CONFIGURACION_SUPABASE.md`](CONFIGURACION_SUPABASE.md) - Setup de Supabase
+- [`GUIA_SCRIPTS_SUPABASE.md`](GUIA_SCRIPTS_SUPABASE.md) - Scripts de base de datos
+
+## 🚀 Despliegue
+
+El proyecto está listo para desplegar en:
+- **Render** (recomendado)
+- **Railway**
+- **Vercel** (solo frontend)
+- **Heroku**
+
+Para producción, asegúrate de:
+1. Configurar las variables de entorno
+2. Usar HTTPS
+3. Configurar CORS apropiadamente
+
+## 📝 Changelog v2.0.0
+
+### Nuevas características
+- ✨ Rediseño completo de la landing page
+- ✨ Sistema de templates optimizado (3 en fila)
+- ✨ Modal de CV mejorado con comparación de puntajes
+- ✨ Modal de feedback y contacto con WhatsApp
+- ✨ Loading spinner en historial
+- ✨ Campos dinámicos de contacto (email/WhatsApp)
+
+### Mejoras
+- ⚡ Código limpio sin console.log de desarrollo
+- ⚡ Mejor manejo de errores en endpoints
+- ⚡ Optimización responsive para móviles
+- ⚡ Fix de error 404 en improved-status
+
+### Correcciones
+- 🐛 Arreglado bug de cvId incorrecto en checkImprovedCvStatus
+- 🐛 Corregido overflow del select en modal de feedback
+- 🐛 Ajustado scroll horizontal de templates en móvil
 
 ## 📄 Licencia
 
-ISC License
+ISC License - Ver archivo [LICENSE](LICENSE)
 
 ## 👥 Autor
 
-**Cesar AC** - [@Cesar-AC](https://github.com/Cesar-AC)
+**Cesar AC** - Desarrollador Full Stack
+
+- 📧 Email: cacuna@unitru.edu.pe
+- 💼 LinkedIn: [@cesar-ac10](https://www.linkedin.com/in/cesar-ac10/)
+- 🐙 GitHub: [@Cesar-AC](https://github.com/Cesar-AC)
+- 📱 WhatsApp: [+51 962 557 528](https://wa.me/51962557528)
 
 ---
 
-**© 2024 Analizador de CV con IA** 🚀
+<p align="center">
+  <strong>© 2024-2025 AutoCV IA</strong> 🚀
+  <br>
+  <em>Potencia tu carrera con un CV profesional</em>
+</p>

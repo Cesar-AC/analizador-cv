@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Intersection Observer para animar elementos al hacer scroll
     const observerOptions = {
         threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px'
+        rootMargin: '0px 0px -50px 0px'
     };
 
     const fadeInObserver = new IntersectionObserver(function (entries) {
@@ -15,28 +15,47 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }, observerOptions);
 
-    // Observar secciones para animaciones
-    document.querySelectorAll('.section').forEach(section => {
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(30px)';
-        section.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-        fadeInObserver.observe(section);
-    });
+    // Elementos a animar
+    const animatedElements = [
+        ...document.querySelectorAll('.section'),
+        ...document.querySelectorAll('.step-card'),
+        ...document.querySelectorAll('.benefit-card'),
+        ...document.querySelectorAll('.feature-card')
+    ];
 
-    // Animar tarjetas de pasos con delay escalonado
-    document.querySelectorAll('.step-card').forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = `opacity 0.6s ease ${index * 0.15}s, transform 0.6s ease ${index * 0.15}s`;
-        fadeInObserver.observe(card);
-    });
+    // Configurar estado inicial
+    animatedElements.forEach((el, index) => {
+        // Verificar si ya está visible en el viewport para evitar flash
+        const rect = el.getBoundingClientRect();
+        const isVisible = (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
 
-    // Animar tarjetas de beneficios con delay escalonado
-    document.querySelectorAll('.benefit-card').forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateX(-20px)';
-        card.style.transition = `opacity 0.5s ease ${index * 0.1}s, transform 0.5s ease ${index * 0.1}s`;
-        fadeInObserver.observe(card);
+        if (isVisible) {
+            // Si ya es visible, mostrar inmediatamente sin animación de entrada
+            el.classList.add('animate-in');
+            el.style.opacity = '1';
+            el.style.transform = 'none';
+        } else {
+            // Si no, preparar para animación
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+
+            // Añadir delay escalonado si es una tarjeta
+            if (el.classList.contains('step-card') || el.classList.contains('benefit-card') || el.classList.contains('feature-card')) {
+                // Calcular índice relativo al contenedor padre para el delay
+                const parent = el.parentElement;
+                const siblings = Array.from(parent.children);
+                const relativeIndex = siblings.indexOf(el);
+                el.style.transitionDelay = `${relativeIndex * 0.1}s`;
+            }
+
+            fadeInObserver.observe(el);
+        }
     });
 
     // Añadir clase para animación
@@ -94,20 +113,24 @@ document.addEventListener('DOMContentLoaded', function () {
     // Efecto de typing en el título del hero (sutil)
     const heroTitle = document.querySelector('.hero h1');
     if (heroTitle) {
-        const text = heroTitle.textContent;
-        heroTitle.textContent = '';
-        heroTitle.style.opacity = '1';
+        // Solo animar si no se ha animado antes (usando sessionStorage)
+        if (!sessionStorage.getItem('heroAnimated')) {
+            const text = heroTitle.textContent;
+            heroTitle.textContent = '';
+            heroTitle.style.opacity = '1';
 
-        let index = 0;
-        function typeWriter() {
-            if (index < text.length) {
-                heroTitle.textContent += text.charAt(index);
-                index++;
-                setTimeout(typeWriter, 30);
+            let index = 0;
+            function typeWriter() {
+                if (index < text.length) {
+                    heroTitle.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(typeWriter, 30);
+                } else {
+                    sessionStorage.setItem('heroAnimated', 'true');
+                }
             }
+            setTimeout(typeWriter, 500);
         }
-
-        setTimeout(typeWriter, 500);
     }
 
     // Animación de flotación en las feature cards

@@ -1,567 +1,35 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi Perfil - AutoCV IA</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    /* Estilos específicos para el perfil */
-    .profile-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    /* Sección de bienvenida con diseño azul */
-    .welcome-section {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 50%, #1e6ba8 100%);
-      border-radius: 20px;
-      padding: 3rem 2.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .welcome-section::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -10%;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-
-    .welcome-section::after {
-      content: '';
-      position: absolute;
-      bottom: -30%;
-      left: -5%;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-
-    .welcome-section h1 {
-      color: white;
-      font-size: 2.5rem;
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    .welcome-section h1 i {
-      font-size: 2.2rem;
-      background: rgba(255,255,255,0.2);
-      padding: 0.75rem;
-      border-radius: 15px;
-      backdrop-filter: blur(10px);
-    }
-
-    .welcome-section p {
-      color: rgba(255,255,255,0.95);
-      font-size: 1.1rem;
-      position: relative;
-      z-index: 1;
-      margin: 0;
-    }
-
-    @media (max-width: 768px) {
-      .welcome-section {
-        padding: 2rem 1.5rem;
-      }
-
-      .welcome-section h1 {
-        font-size: 1.75rem;
-      }
-
-      .welcome-section h1 i {
-        font-size: 1.5rem;
-        padding: 0.5rem;
-      }
-    }
-
-    .profile-grid {
-      display: grid;
-      grid-template-columns: 350px 1fr;
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-
-    @media (max-width: 968px) {
-      .profile-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Tarjeta de avatar */
-    .avatar-card {
-      background: white;
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-      position: sticky;
-      top: 2rem;
-      height: fit-content;
-    }
-
-    .avatar-upload-container {
-      position: relative;
-      width: 200px;
-      height: 200px;
-    }
-
-    .avatar-preview-box {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 4px solid var(--primary-color);
-      box-shadow: 0 8px 24px rgba(52, 152, 219, 0.2);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .avatar-preview-box:hover {
-      transform: scale(1.05);
-      box-shadow: 0 12px 32px rgba(52, 152, 219, 0.3);
-    }
-
-    .avatar-preview-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .avatar-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(52, 152, 219, 0.9), rgba(41, 128, 185, 0.9));
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      gap: 0.5rem;
-    }
-
-    .avatar-preview-box:hover .avatar-overlay {
-      opacity: 1;
-    }
-
-    .avatar-overlay i {
-      font-size: 3rem;
-    }
-
-    .avatar-overlay span {
-      font-size: 1rem;
-      font-weight: 600;
-    }
-
-    .avatar-upload-btn {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: var(--primary-color);
-      color: white;
-      border: 4px solid white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      transition: all 0.3s ease;
-    }
-
-    .avatar-upload-btn:hover {
-      background: var(--primary-hover);
-      transform: scale(1.1);
-    }
-
-    .avatar-upload-btn i {
-      font-size: 1.2rem;
-    }
-
-    .user-info-sidebar {
-      text-align: center;
-      width: 100%;
-    }
-
-    .user-info-sidebar h2 {
-      font-size: 1.5rem;
-      color: #2c3e50;
-      margin-bottom: 0.5rem;
-    }
-
-    .user-info-sidebar p {
-      color: #7f8c8d;
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
-    }
-
-    .role-badge-large {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 50px;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    .role-badge-large.admin {
-      background: linear-gradient(135deg, #e74c3c, #c0392b);
-      color: white;
-    }
-
-    .role-badge-large.user {
-      background: linear-gradient(135deg, #3498db, #2980b9);
-      color: white;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-      width: 100%;
-      margin-top: 1.5rem;
-    }
-
-    .stat-item {
-      background: #f8f9fa;
-      padding: 1rem;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .stat-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-
-    .stat-icon.calendar {
-      background: linear-gradient(135deg, #3498db, #2980b9);
-      color: white;
-    }
-
-    .stat-icon.update {
-      background: linear-gradient(135deg, #2ecc71, #27ae60);
-      color: white;
-    }
-
-    .stat-content {
-      flex: 1;
-      text-align: left;
-    }
-
-    .stat-label {
-      font-size: 0.85rem;
-      color: #7f8c8d;
-      margin-bottom: 0.25rem;
-    }
-
-    .stat-value {
-      font-weight: 600;
-      color: #2c3e50;
-      font-size: 0.95rem;
-    }
-
-    /* Tarjeta de formulario */
-    .form-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      overflow: hidden;
-    }
-
-    .form-card-header {
-      background: linear-gradient(135deg, var(--primary-color), #2980b9);
-      color: white;
-      padding: 2rem;
-    }
-
-    .form-card-header h2 {
-      font-size: 1.75rem;
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .form-card-header p {
-      opacity: 0.9;
-      font-size: 1rem;
-    }
-
-    .form-card-body {
-      padding: 2rem;
-    }
-
-    .form-section {
-      margin-bottom: 2rem;
-    }
-
-    .form-section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #2c3e50;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 2px solid #ecf0f1;
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: 600;
-      color: #2c3e50;
-      margin-bottom: 0.75rem;
-      font-size: 0.95rem;
-    }
-
-    .form-group label i {
-      color: var(--primary-color);
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 0.875rem 1rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-
-    .form-group input:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-      outline: none;
-    }
-
-    .form-group input:disabled {
-      background: #f8f9fa;
-      cursor: not-allowed;
-      color: #95a5a6;
-    }
-
-    .form-hint {
-      font-size: 0.875rem;
-      color: #7f8c8d;
-      margin-top: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .form-hint i {
-      font-size: 0.75rem;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 2px solid #ecf0f1;
-    }
-
-    .form-actions button {
-      flex: 1;
-      padding: 1rem;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
-    }
-
-    .btn-outline:hover {
-      transform: translateY(-2px);
-    }
-
-    /* Loading state */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .loading-overlay.active {
-      display: flex;
-    }
-
-    .loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid var(--primary-color);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Cabecera personalizada (header) */
-    .dashboard-header {
-      background: linear-gradient(90deg, #fff 0%, rgba(255,255,255,0.9) 100%);
-      padding: 1rem 0;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-    }
-
-    .dashboard-header .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1.25rem;
-    }
-
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .logo i {
-      color: #2b6bd6;
-      background: linear-gradient(135deg,#5fb0ff,#2b6bd6);
-      color: white;
-      padding: 0.5rem;
-      border-radius: 8px;
-      font-size: 1.15rem;
-      box-shadow: 0 6px 18px rgba(43,107,214,0.18);
-    }
-
-    .logo-link {
-      font-weight: 700;
-      color: #2b6bd6;
-      text-decoration: none;
-      font-size: 1.15rem;
-    }
-
-    .user-menu {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .user-email {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #34495e;
-      font-weight: 600;
-      padding: 0.35rem 0.6rem;
-      border-radius: 8px;
-      background: rgba(43,107,214,0.06);
-    }
-
-    .user-email i { color: #2b6bd6; }
-
-    .btn-outline {
-      border: 2px solid #2b6bd6;
-      color: #2b6bd6;
-      background: transparent;
-      padding: 0.45rem 0.9rem;
-      border-radius: 10px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn-outline:hover {
-      background: linear-gradient(90deg,#2b6bd6,#1f57b0);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(43,107,214,0.18);
-    }
-
-  </style>
 </head>
+
 <body>
   <!-- Header -->
-  <header class="dashboard-header">
-    <div class="container">
-      <div class="header-content">
-        <div class="logo">
-          <i class="fas fa-file-alt"></i>
-          <a href="/" class="logo-link">AutoCV IA</a>
-        </div>
-        <nav class="user-menu">
-          <span class="user-email" id="user-email">
-            <i class="fas fa-user-circle"></i>
-            <span class="user-email-text"></span>
-          </span>
-          <button class="btn btn-outline" onclick="window.location.href='dashboard.html'">
-            <i class="fas fa-tachometer-alt"></i>
-            <span class="btn-text">Dashboard</span>
-          </button>
-          <button class="btn btn-outline" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i>
-            <span class="btn-text">Salir</span>
-          </button>
-        </nav>
+  <header class="header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <i class="fas fa-file-alt"></i>
+        AutoCV IA
+      </a>
+      <div class="auth-buttons">
+        <span class="user-email" id="user-email" style="color: var(--text-secondary); margin-right: 1rem;">
+          <i class="fas fa-user-circle"></i>
+          <span class="user-email-text"></span>
+        </span>
+        <button class="btn btn-outline" onclick="window.location.href='dashboard.html'">
+          <i class="fas fa-tachometer-alt"></i>
+          <span class="btn-text">Dashboard</span>
+        </button>
+        <button class="btn btn-outline" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="btn-text">Salir</span>
+        </button>
       </div>
     </div>
   </header>
@@ -594,31 +62,26 @@
         <div>
           <div class="avatar-card">
             <!-- Avatar con subida -->
-            <div class="avatar-upload-container">
+            <div class="avatar-upload-container" style="position: relative; width: 200px; height: 200px;">
               <div class="avatar-preview-box" onclick="document.getElementById('profile-avatar').click()">
-                <img 
-                  id="avatar-img" 
-                  src="https://ui-avatars.com/api/?name=Usuario&size=200&background=3498db&color=fff"
-                  alt="Avatar"
-                >
+                <img id="avatar-img"
+                  src="https://ui-avatars.com/api/?name=Usuario&size=200&background=0A192F&color=64ffda" alt="Avatar"
+                  style="width: 100%; height: 100%; object-fit: cover;">
                 <div class="avatar-overlay">
                   <i class="fas fa-camera"></i>
                   <span>Cambiar foto</span>
                 </div>
               </div>
-              <button type="button" class="avatar-upload-btn" onclick="document.getElementById('profile-avatar').click()">
+              <button type="button" class="avatar-upload-btn"
+                onclick="document.getElementById('profile-avatar').click()">
                 <i class="fas fa-camera"></i>
               </button>
-              <input 
-                type="file" 
-                id="profile-avatar" 
-                accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
-                style="display: none;"
-              >
+              <input type="file" id="profile-avatar" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                style="display: none;">
             </div>
 
             <!-- Info del usuario -->
-            <div class="user-info-sidebar">
+            <div class="user-info-sidebar" style="text-align: center; width: 100%;">
               <h2 id="sidebar-name">Cargando...</h2>
               <p id="sidebar-email">-</p>
               <span id="sidebar-role"></span>
@@ -659,11 +122,12 @@
               <p>Actualiza tus datos personales</p>
             </div>
 
-            <div class="form-card-body">
+            <div class="form-card-body" style="padding: 2rem;">
               <form id="profile-form">
                 <!-- Sección: Información básica -->
-                <div class="form-section">
-                  <div class="form-section-title">
+                <div class="form-section" style="margin-bottom: 2rem;">
+                  <div class="form-section-title"
+                    style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.75rem;">
                     <i class="fas fa-user"></i>
                     Información Básica
                   </div>
@@ -674,11 +138,7 @@
                       <i class="fas fa-envelope"></i>
                       Correo Electrónico
                     </label>
-                    <input 
-                      type="email" 
-                      id="profile-email" 
-                      disabled
-                    >
+                    <input type="email" id="profile-email" disabled>
                     <div class="form-hint">
                       <i class="fas fa-info-circle"></i>
                       El correo electrónico no se puede modificar
@@ -691,12 +151,7 @@
                       <i class="fas fa-id-card"></i>
                       Nombre Completo *
                     </label>
-                    <input 
-                      type="text" 
-                      id="profile-name" 
-                      placeholder="Ingresa tu nombre completo"
-                      required
-                    >
+                    <input type="text" id="profile-name" placeholder="Ingresa tu nombre completo" required>
                     <div class="form-hint">
                       <i class="fas fa-info-circle"></i>
                       Este nombre aparecerá en tus CVs generados
@@ -705,12 +160,14 @@
                 </div>
 
                 <!-- Acciones -->
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary" id="save-btn">
+                <div class="form-actions"
+                  style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--lightest-navy);">
+                  <button type="submit" class="btn btn-primary" id="save-btn" style="flex: 1;">
                     <i class="fas fa-save"></i>
                     Guardar Cambios
                   </button>
-                  <button type="button" class="btn btn-outline" onclick="window.location.href='dashboard.html'">
+                  <button type="button" class="btn btn-outline" onclick="window.location.href='dashboard.html'"
+                    style="flex: 1;">
                     <i class="fas fa-times"></i>
                     Cancelar
                   </button>
@@ -726,4 +183,5 @@
   <script src="js/config.js"></script>
   <script src="js/profile.js"></script>
 </body>
+
 </html>

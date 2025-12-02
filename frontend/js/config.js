@@ -83,8 +83,6 @@ function isAdmin() {
 }
 
 // Log del entorno actual (solo en desarrollo)
-if (getEnvironment() === 'development') {
-  console.log('🔧 Entorno:', getEnvironment());
-  console.log('🌐 Base URL:', getBaseUrl());
-  console.log('🔌 API URL:', getApiUrl());
-}
+// if (getEnvironment() === 'development') {
+//   Logs desactivados para producción
+// }

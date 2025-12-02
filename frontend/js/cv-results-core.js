@@ -30,24 +30,21 @@ function getCvIdFromURL() {
     // Intentar obtener del query string primero (?id=...)
     const urlParams = new URLSearchParams(window.location.search);
     const idFromQuery = urlParams.get('id');
-    
+
     if (idFromQuery) {
-        console.log('✅ CV ID obtenido del query string:', idFromQuery);
         return idFromQuery;
     }
-    
+
     // Si no está en query string, intentar obtener del path (/cv-results/uuid)
     const pathParts = window.location.pathname.split('/');
     const idFromPath = pathParts[pathParts.length - 1].replace('.html', '');
-    
+
     // Validar que sea un UUID
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (uuidRegex.test(idFromPath)) {
-        console.log('✅ CV ID obtenido del path:', idFromPath);
         return idFromPath;
     }
-    
-    console.error('❌ No se pudo obtener un CV ID válido de la URL');
+
     return null;
 }
 
@@ -67,20 +64,20 @@ function formatProcessingTime(seconds) {
     if (seconds > 31536000) {
         return 'Error en cálculo';
     }
-    
+
     if (seconds < 60) {
         return `${seconds} segundos`;
     } else if (seconds < 3600) {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
-        return remainingSeconds > 0 
-            ? `${minutes} min ${remainingSeconds} seg` 
+        return remainingSeconds > 0
+            ? `${minutes} min ${remainingSeconds} seg`
             : `${minutes} minutos`;
     } else {
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
-        return minutes > 0 
-            ? `${hours}h ${minutes}min` 
+        return minutes > 0
+            ? `${hours}h ${minutes}min`
             : `${hours} horas`;
     }
 }
@@ -90,21 +87,18 @@ async function loadResults() {
     try {
         const token = getAuthToken();
         const userInfo = getUserInfo();
-        console.log('Token obtenido:', token ? 'Sí existe' : 'No existe');
-        
+
         if (!token) {
             alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
             window.location.href = '/';
             return;
         }
-        
+
         const isAdmin = userInfo && userInfo.role === 'admin';
-        const url = isAdmin 
+        const url = isAdmin
             ? `${API_BASE_URL}/admin/curriculums/${cvId}`
             : `${API_BASE_URL}/files/${cvId}`;
-        
-        console.log('Haciendo petición a:', url);
-        
+
         const response = await fetch(url, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -146,14 +140,14 @@ function displayResults(cv, isAdmin) {
         const switchViewButton = document.getElementById('switchViewButton');
         const backText = document.getElementById('backText');
         const switchViewText = document.getElementById('switchViewText');
-        
+
         if (isAdmin) {
             backButton.href = 'admin.html';
             backText.textContent = 'Volver a Admin';
             switchViewButton.style.display = 'inline-flex';
             switchViewButton.href = 'dashboard.html';
             switchViewText.textContent = 'Ir a Dashboard Usuario';
-            
+
             const improveCvButton = document.getElementById('improveCvButton');
             const ctaSection = document.getElementById('ctaSection');
             if (improveCvButton) improveCvButton.style.display = 'none';
@@ -162,21 +156,21 @@ function displayResults(cv, isAdmin) {
             backButton.href = 'dashboard.html';
             backText.textContent = 'Volver al Dashboard';
             switchViewButton.style.display = 'none';
-            
+
             const improveCvButton = document.getElementById('improveCvButton');
             const ctaSection = document.getElementById('ctaSection');
             if (improveCvButton) improveCvButton.style.display = 'inline-flex';
             if (ctaSection) ctaSection.style.display = 'block';
         }
-        
+
         const analysis = cv.analysis_result;
         currentCvData = analysis;
         window.cvAnalysisData = analysis;
-        
+
         if (!analysis || !analysis.meta) {
             throw new Error('Formato de análisis inválido');
         }
-    
+
         // Puntaje total
         document.getElementById('totalScore').textContent = analysis.meta.puntaje_total;
 
@@ -234,7 +228,7 @@ function displayResults(cv, isAdmin) {
 // Crear gráfico de categorías
 function createCategoryChart(details) {
     const ctx = document.getElementById('categoryChart').getContext('2d');
-    
+
     if (categoryChart) categoryChart.destroy();
 
     categoryChart = new Chart(ctx, {
@@ -245,16 +239,16 @@ function createCategoryChart(details) {
                 label: 'Puntuación',
                 data: Object.values(details),
                 backgroundColor: [
-                    'rgba(102, 126, 234, 0.8)',
-                    'rgba(118, 75, 162, 0.8)',
-                    'rgba(237, 100, 166, 0.8)',
-                    'rgba(255, 154, 158, 0.8)'
+                    'rgba(100, 255, 218, 0.8)',  // Green
+                    'rgba(87, 203, 255, 0.8)',   // Blue
+                    'rgba(189, 147, 249, 0.8)',  // Purple
+                    'rgba(230, 241, 255, 0.8)'   // White
                 ],
                 borderColor: [
-                    'rgba(102, 126, 234, 1)',
-                    'rgba(118, 75, 162, 1)',
-                    'rgba(237, 100, 166, 1)',
-                    'rgba(255, 154, 158, 1)'
+                    'rgba(100, 255, 218, 1)',
+                    'rgba(87, 203, 255, 1)',
+                    'rgba(189, 147, 249, 1)',
+                    'rgba(230, 241, 255, 1)'
                 ],
                 borderWidth: 2,
                 borderRadius: 10
@@ -266,7 +260,21 @@ function createCategoryChart(details) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 100
+                    max: 100,
+                    grid: {
+                        color: 'rgba(136, 146, 176, 0.1)'
+                    },
+                    ticks: {
+                        color: '#8892b0'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#8892b0'
+                    }
                 }
             },
             plugins: {
@@ -281,7 +289,7 @@ function createCategoryChart(details) {
 // Crear gráfico circular
 function createDoughnutChart(details, totalScore) {
     const ctx = document.getElementById('doughnutChart').getContext('2d');
-    
+
     if (window.doughnutChartInstance) {
         window.doughnutChartInstance.destroy();
     }
@@ -296,12 +304,12 @@ function createDoughnutChart(details, totalScore) {
             datasets: [{
                 data: [avgScore, remaining],
                 backgroundColor: [
-                    'rgba(102, 126, 234, 0.8)',
-                    'rgba(229, 231, 235, 0.5)'
+                    'rgba(100, 255, 218, 0.8)',
+                    'rgba(17, 34, 64, 0.5)'
                 ],
                 borderColor: [
-                    'rgba(102, 126, 234, 1)',
-                    'rgba(229, 231, 235, 1)'
+                    'rgba(100, 255, 218, 1)',
+                    'rgba(17, 34, 64, 1)'
                 ],
                 borderWidth: 2
             }]
@@ -314,6 +322,7 @@ function createDoughnutChart(details, totalScore) {
                     position: 'bottom',
                     labels: {
                         padding: 15,
+                        color: '#8892b0',
                         font: {
                             size: 12
                         }
@@ -321,7 +330,7 @@ function createDoughnutChart(details, totalScore) {
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             return context.label + ': ' + context.parsed.toFixed(1) + '%';
                         }
                     }
@@ -334,20 +343,21 @@ function createDoughnutChart(details, totalScore) {
 // Verificar el estado del CV mejorado
 async function checkImprovedCvStatus() {
     try {
-        const cvId = window.location.pathname.split('/').pop();
-        const token = getAuthToken();
+        // Usar la variable global cvId definida al inicio del archivo
+        if (!cvId) return;
         
+        const token = getAuthToken();
+
         const response = await fetch(`${API_BASE_URL}/files/${cvId}/improved-status`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
-            
+
             if (data.status === 'completed' && data.improved_cv_url) {
-                console.log('✅ CV mejorado disponible');
                 // Agregar notificación visual si existe la función
                 if (typeof addImprovedNotification === 'function') {
                     addImprovedNotification();
@@ -355,14 +365,14 @@ async function checkImprovedCvStatus() {
             }
         }
     } catch (error) {
-        console.log('ℹ️ No hay CV mejorado disponible aún');
+        // Sin CV mejorado disponible
     }
 }
 
 // Cargar resultados al iniciar
 document.addEventListener('DOMContentLoaded', () => {
     loadResults();
-    
+
     // Verificar si se debe abrir el modal del CV mejorado automáticamente
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('openImproved') === 'true') {
@@ -372,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 1000);
     }
-    
+
     // Event listener para Enter en textarea
     const answerInput = document.getElementById('answerInput');
     if (answerInput) {

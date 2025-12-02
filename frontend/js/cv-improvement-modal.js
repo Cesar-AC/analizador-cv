@@ -14,8 +14,6 @@ function openImprovementModal() {
             pregunta: item.pregunta,
             placeholder: 'Escribe una respuesta clara y detallada...'
         }));
-        
-        console.log('📋 Preguntas cargadas desde el análisis:', improvementQuestions);
     } else {
         // Fallback: preguntas por defecto si no hay análisis
         console.warn('⚠️ No se encontraron preguntas en el análisis, usando preguntas por defecto');
@@ -135,97 +133,95 @@ function showCompletionMessage() {
                 <i class="fas fa-check-circle"></i>
             </div>
             <h3>¡Excelente! Has completado las preguntas</h3>
-            <p class="subtitle-completion">Selecciona la plantilla que mejor se adapte a tu perfil profesional</p>
+            <p class="subtitle-completion">Selecciona la plantilla que mejor se adapte a tu perfil</p>
             
-            <div class="template-selection">
-                <div class="template-card template-card-harvard" onclick="selectTemplate('harvard')">
-                    <div class="template-badge">
-                        <i class="fas fa-briefcase"></i>
-                        <span>Profesional</span>
-                    </div>
-                    <div class="template-preview template-preview-harvard">
-                        <div class="template-mockup">
-                            <div class="mockup-header"></div>
-                            <div class="mockup-line"></div>
-                            <div class="mockup-line short"></div>
-                            <div class="mockup-section"></div>
-                            <div class="mockup-line"></div>
-                            <div class="mockup-line short"></div>
+            <div class="template-selection-wrapper">
+                <div class="template-selection">
+                    <div class="template-card template-card-harvard" onclick="selectTemplate('harvard')">
+                        <div class="template-badge">
+                            <i class="fas fa-briefcase"></i>
+                            Profesional
+                        </div>
+                        <div class="template-preview">
+                            <div class="template-mockup">
+                                <div class="mockup-header"></div>
+                                <div class="mockup-line"></div>
+                                <div class="mockup-line short"></div>
+                                <div class="mockup-section"></div>
+                            </div>
+                        </div>
+                        <div class="template-info">
+                            <h4>Harvard</h4>
+                            <p class="template-category">Ejecutivo & Corporativo</p>
                         </div>
                     </div>
-                    <div class="template-info">
-                        <h4>Harvard</h4>
-                        <p class="template-category">Ejecutivo & Corporativo</p>
-                        <p class="template-description">Ideal para puestos gerenciales, finanzas, consultoría y sectores corporativos tradicionales</p>
-                        <div class="template-features">
-                            <span><i class="fas fa-check"></i> Diseño limpio</span>
-                            <span><i class="fas fa-check"></i> ATS Friendly</span>
+                    
+                    <div class="template-card template-card-mit" onclick="selectTemplate('mit')">
+                        <div class="template-badge badge-tech">
+                            <i class="fas fa-laptop-code"></i>
+                            Tech
                         </div>
-                    </div>
-                </div>
-                
-                <div class="template-card template-card-mit" onclick="selectTemplate('mit')">
-                    <div class="template-badge badge-tech">
-                        <i class="fas fa-laptop-code"></i>
-                        <span>Tecnológico</span>
-                    </div>
-                    <div class="template-preview template-preview-mit">
-                        <div class="template-mockup">
-                            <div class="mockup-header modern"></div>
-                            <div class="mockup-columns">
-                                <div class="mockup-col">
-                                    <div class="mockup-line"></div>
-                                    <div class="mockup-line short"></div>
-                                </div>
-                                <div class="mockup-col">
-                                    <div class="mockup-section"></div>
+                        <div class="template-preview">
+                            <div class="template-mockup mockup-modern">
+                                <div class="mockup-header modern"></div>
+                                <div class="mockup-columns">
+                                    <div class="mockup-col">
+                                        <div class="mockup-line"></div>
+                                        <div class="mockup-line short"></div>
+                                    </div>
+                                    <div class="mockup-col">
+                                        <div class="mockup-section"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="template-info">
+                            <h4>MIT</h4>
+                            <p class="template-category">Tech & Startups</p>
+                        </div>
                     </div>
-                    <div class="template-info">
-                        <h4>MIT</h4>
-                        <p class="template-category">Tech & Innovación</p>
-                        <p class="template-description">Perfecto para desarrolladores, diseñadores, startups y roles tecnológicos modernos</p>
-                        <div class="template-features">
-                            <span><i class="fas fa-check"></i> Moderno</span>
-                            <span><i class="fas fa-check"></i> Destacable</span>
+                    
+                    <div class="template-card template-card-oxford" onclick="selectTemplate('oxford')">
+                        <div class="template-badge badge-academic">
+                            <i class="fas fa-graduation-cap"></i>
+                            Académico
+                        </div>
+                        <div class="template-preview">
+                            <div class="template-mockup">
+                                <div class="mockup-header classic"></div>
+                                <div class="mockup-line"></div>
+                                <div class="mockup-line"></div>
+                                <div class="mockup-section small"></div>
+                            </div>
+                        </div>
+                        <div class="template-info">
+                            <h4>Oxford</h4>
+                            <p class="template-category">Clásico & Formal</p>
                         </div>
                     </div>
                 </div>
-                
-                <div class="template-card template-card-oxford" onclick="selectTemplate('oxford')">
-                    <div class="template-badge badge-academic">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>Académico</span>
-                    </div>
-                    <div class="template-preview template-preview-oxford">
-                        <div class="template-mockup">
-                            <div class="mockup-header classic"></div>
-                            <div class="mockup-line"></div>
-                            <div class="mockup-line"></div>
-                            <div class="mockup-section small"></div>
-                            <div class="mockup-line"></div>
-                            <div class="mockup-line short"></div>
-                        </div>
-                    </div>
-                    <div class="template-info">
-                        <h4>Oxford</h4>
-                        <p class="template-category">Clásico & Formal</p>
-                        <p class="template-description">Excelente para academia, investigación, legal, medicina y sectores tradicionales</p>
-                        <div class="template-features">
-                            <span><i class="fas fa-check"></i> Elegante</span>
-                            <span><i class="fas fa-check"></i> Tradicional</span>
-                        </div>
-                    </div>
+                <div class="scroll-hint">
+                    <i class="fas fa-arrows-left-right"></i>
+                    <span>Desliza para ver más</span>
                 </div>
             </div>
             
             <button class="btn-continue-template" id="continueTemplateBtn" disabled onclick="confirmTemplateSelection()">
-                <i class="fas fa-arrow-right"></i> Continuar con plantilla seleccionada
+                <i class="fas fa-arrow-right"></i> Continuar
             </button>
         </div>
     `;
+    
+    // Ocultar hint de scroll en desktop
+    const checkScrollHint = () => {
+        const wrapper = document.querySelector('.template-selection-wrapper');
+        const hint = document.querySelector('.scroll-hint');
+        if (wrapper && hint) {
+            hint.style.display = wrapper.scrollWidth > wrapper.clientWidth ? 'flex' : 'none';
+        }
+    };
+    setTimeout(checkScrollHint, 100);
+    window.addEventListener('resize', checkScrollHint);
 }
 
 // Seleccionar plantilla
@@ -284,14 +280,6 @@ async function startGeneration() {
             omitida: !answers[index] || answers[index].trim() === ''
         }));
         
-        console.log('📤 Enviando respuestas al backend:', {
-            cvId,
-            totalPreguntas: answersArray.length,
-            contestadas: answersArray.filter(a => !a.omitida).length,
-            omitidas: answersArray.filter(a => a.omitida).length,
-            respuestas: answersArray
-        });
-        
         // Guardar respuestas
         const answersResponse = await fetch(`${API_BASE_URL}/files/${cvId}/improvement-answers`, {
             method: 'POST',
@@ -312,10 +300,8 @@ async function startGeneration() {
         }
         
         const answersResult = await answersResponse.json();
-        console.log('✅ Respuestas guardadas correctamente:', answersResult);
         
         // Generar CV mejorado (el backend usa las respuestas ya guardadas + la plantilla)
-        console.log('🚀 Iniciando generación del CV mejorado con plantilla:', selectedTemplate);
         
         const generateResponse = await fetch(`${API_BASE_URL}/files/${cvId}/generate-improved`, {
             method: 'POST',
@@ -335,7 +321,6 @@ async function startGeneration() {
         }
         
         const generateResult = await generateResponse.json();
-        console.log('✅ Generación iniciada correctamente:', generateResult);
         
         // Iniciar polling para verificar el estado
         startPolling();
@@ -547,7 +532,6 @@ async function downloadImprovedCV() {
 
 // Ver datos del CV mejorado
 function viewImprovedData() {
-    console.log('🔍 Abriendo modal de CV mejorado...');
     closeSuccessModal();
     
     // Llamar a la función del módulo cv-improved-modal
@@ -573,7 +557,6 @@ function getCvIdFromURL() {
     const idFromQuery = urlParams.get('id');
     
     if (idFromQuery) {
-        console.log('✅ CV ID obtenido del query string:', idFromQuery);
         return idFromQuery;
     }
     
@@ -584,10 +567,8 @@ function getCvIdFromURL() {
     // Validar que sea un UUID
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (uuidRegex.test(idFromPath)) {
-        console.log('✅ CV ID obtenido del path:', idFromPath);
         return idFromPath;
     }
     
-    console.error('❌ No se pudo obtener un CV ID válido de la URL');
     return null;
 }

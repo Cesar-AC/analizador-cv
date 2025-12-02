@@ -7,14 +7,10 @@
 
 // Abrir modal de resultados mejorados
 function openImprovedResultsModal(cvId = null) {
-    console.log('🎯 Abriendo modal minimalista de CV mejorado...');
-    
     // Si no se pasa cvId, intentar obtenerlo de la URL
     if (!cvId) {
         cvId = getCvIdFromURL();
     }
-    
-    console.log('📋 CV ID:', cvId);
     
     // Crear el modal si no existe
     createImprovedModalIfNotExists();
@@ -37,11 +33,8 @@ function openImprovedResultsModal(cvId = null) {
 function createImprovedModalIfNotExists() {
     // Verificar si ya existe
     if (document.getElementById('improvedResultsModal')) {
-        console.log('✅ Modal ya existe en el DOM');
         return;
     }
-    
-    console.log('🔨 Creando modal de CV mejorado...');
     
     // Crear el modal
     const modalHTML = `
@@ -85,7 +78,6 @@ function createImprovedModalIfNotExists() {
     
     // Agregar al body
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-    console.log('✅ Modal creado exitosamente');
 }
 
 // Cerrar modal de resultados mejorados
@@ -110,8 +102,6 @@ async function loadImprovedCvDataMinimal(cvId) {
             cvId = getCvIdFromURL();
         }
         
-        console.log('📥 Cargando datos del CV mejorado para ID:', cvId);
-        
         if (!cvId) {
             showError('No se pudo obtener el ID del CV');
             return;
@@ -123,8 +113,6 @@ async function loadImprovedCvDataMinimal(cvId) {
             }
         });
         
-        console.log('📡 Response status:', response.status);
-        
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             console.error('❌ Error del servidor:', errorData);
@@ -132,11 +120,6 @@ async function loadImprovedCvDataMinimal(cvId) {
         }
         
         const data = await response.json();
-        console.log('📊 Datos completos recibidos:', data);
-        console.log('📊 Status:', data.status);
-        console.log('📊 improved_cv_data:', data.improved_cv_data);
-        console.log('📊 improved_cv_url:', data.improved_cv_url);
-        console.log('⭐ original_score:', data.original_score); // ⭐ NUEVO LOG
         
         // Verificar si hay datos
         if (!data) {
@@ -185,8 +168,6 @@ function renderMinimalContent(data, cvId) {
     const cvData = data.improved_cv_data;
     const template = data.template || data.selected_template || 'HARVARD';
     const pdfUrl = data.improved_cv_url;
-    
-    console.log('🎨 Renderizando contenido:', { template, pdfUrl, cvData });
     
     // Guardar la URL del PDF globalmente para la descarga
     window.currentImprovedPdfUrl = pdfUrl;
@@ -357,9 +338,6 @@ function extractKeyHighlights(cvData) {
 
 // Renderizar métricas simples con comparación antes/después
 function renderSimpleMetrics(data) {
-    console.log('📊 renderSimpleMetrics - data recibida:', data);
-    console.log('📊 data.original_score:', data.original_score);
-    
     // Intentar obtener puntajes de diferentes fuentes
     // 1. Puntaje ORIGINAL: desde la variable global currentCvData (si está en cv-results) o desde data.original_score
     // 2. Puntaje MEJORADO: desde evaluation.puntaje_total (nuevo formato del backend)
@@ -373,12 +351,10 @@ function renderSimpleMetrics(data) {
     // Opción 1: Desde la BD (data.original_score) - PRIORIDAD
     if (data.original_score) {
         originalScore = data.original_score;
-        console.log('✅ Puntaje original desde BD:', originalScore);
         
         // Si data incluye analysis_result, extraer detalles originales
         if (data.analysis_result?.meta?.detalle) {
             detailsOriginal = data.analysis_result.meta.detalle;
-            console.log('✅ Detalles originales desde BD:', detailsOriginal);
         }
     }
     
@@ -386,10 +362,7 @@ function renderSimpleMetrics(data) {
     if (!originalScore && typeof currentCvData !== 'undefined' && currentCvData) {
         originalScore = currentCvData.meta?.puntaje_total || 0;
         detailsOriginal = currentCvData.meta?.detalle || null;
-        console.log('✅ Puntaje original desde currentCvData:', originalScore);
     }
-    
-    console.log('📊 Puntaje original final:', originalScore);
     
     // ===== PUNTAJE MEJORADO =====
     // Obtener desde evaluation.puntaje_total (nuevo formato del backend)
@@ -408,8 +381,6 @@ function renderSimpleMetrics(data) {
             improvedScore = cvData.ats.score;
         }
     }
-    
-    console.log('📊 Métricas:', { originalScore, improvedScore, detailsOriginal, detailsImproved });
     
     // Solo mostrar métricas si tenemos al menos el puntaje mejorado
     if (improvedScore > 0) {
@@ -526,7 +497,6 @@ function getCvIdFromURL() {
     const idFromQuery = urlParams.get('id');
     
     if (idFromQuery) {
-        console.log('✅ CV ID obtenido del query string:', idFromQuery);
         return idFromQuery;
     }
     
@@ -537,19 +507,15 @@ function getCvIdFromURL() {
     // Validar que sea un UUID
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (uuidRegex.test(idFromPath)) {
-        console.log('✅ CV ID obtenido del path:', idFromPath);
         return idFromPath;
     }
     
-    console.error('❌ No se pudo obtener un CV ID válido de la URL');
     return null;
 }
 
 // Función para descargar el PDF del CV mejorado desde el modal
 async function downloadImprovedCVFromModal() {
     try {
-        console.log('📥 Descargando CV mejorado...');
-        
         // Obtener la URL del PDF guardada globalmente
         const pdfUrl = window.currentImprovedPdfUrl;
         
@@ -635,5 +601,3 @@ window.closeImprovedResultsModal = closeImprovedResultsModal;
 window.addImprovedNotification = addImprovedNotification;
 window.downloadImprovedCVFromModal = downloadImprovedCVFromModal;
 window.createImprovedModalIfNotExists = createImprovedModalIfNotExists;
-
-console.log('✅ Módulo cv-improved-modal (minimalista e independiente) cargado correctamente');

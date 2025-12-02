@@ -7,16 +7,14 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-console.log('🔑 Verificando credenciales de Supabase...');
-console.log('   URL:', supabaseUrl ? '✅' : '❌');
-console.log('   ANON_KEY:', supabaseKey ? '✅' : '❌');
-console.log('   SERVICE_ROLE_KEY:', supabaseServiceKey ? '✅' : '❌');
-
+// Verificación silenciosa de credenciales (solo mostrar en caso de error)
 if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Faltan credenciales de Supabase');
   throw new Error('Faltan las credenciales de Supabase en las variables de entorno');
 }
 
 if (!supabaseServiceKey) {
+  console.error('❌ Falta SUPABASE_SERVICE_ROLE_KEY');
   throw new Error('Falta SUPABASE_SERVICE_ROLE_KEY en las variables de entorno');
 }
 
@@ -30,5 +28,3 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
     persistSession: false
   }
 });
-
-console.log('✅ Clientes de Supabase inicializados correctamente');

@@ -520,9 +520,6 @@ router.post('/files/:id/improvement-answers', verifyAuth, async (req, res) => {
     const userId = req.user.id;
 
     console.log('📝 Guardando respuestas de mejora para CV:', id);
-    console.log('Usuario:', userId);
-    console.log('Cantidad de respuestas:', answers?.length);
-    console.log('Datos recibidos:', JSON.stringify({ answers, timestamp }, null, 2));
 
     // Verificar que el CV pertenece al usuario
     const { data: cv, error: cvError } = await supabase
@@ -552,8 +549,6 @@ router.post('/files/:id/improvement-answers', verifyAuth, async (req, res) => {
       skipped_count: skipped_count
     };
 
-    console.log('Datos a guardar:', JSON.stringify(improvementData, null, 2));
-
     const { data: updated, error: updateError } = await supabase
       .from('curriculums')
       .update({
@@ -573,7 +568,6 @@ router.post('/files/:id/improvement-answers', verifyAuth, async (req, res) => {
     }
 
     console.log('✅ Respuestas guardadas exitosamente');
-    console.log('Datos actualizados:', JSON.stringify(updated, null, 2));
 
     res.json({
       success: true,
@@ -990,11 +984,7 @@ router.get('/files/:id/improved-status', verifyAuth, async (req, res) => {
     }
 
     // Extraer el puntaje original del CV (del analysis_result.meta del análisis original)
-    console.log('🔍 CV analysis_result completo:', cv.analysis_result);
-    console.log('🔍 cv.analysis_result?.meta?.puntaje_total:', cv.analysis_result?.meta?.puntaje_total);
-    
     const originalScore = cv.analysis_result?.meta?.puntaje_total || 0;
-    console.log('⭐ originalScore a enviar:', originalScore);
 
     // Responder con estado actual y datos completos
     res.json({
