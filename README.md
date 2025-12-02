@@ -157,20 +157,6 @@ N8N_IMPROVE_WEBHOOK_URL=https://tu-n8n.com/webhook/improve-cv
 PORT=3000
 ```
 
-## 📚 Documentación Adicional
-
-- [`GUIA_COMPLETA.md`](GUIA_COMPLETA.md) - Guía completa del sistema
-- [`N8N_CONFIGURACION.md`](N8N_CONFIGURACION.md) - Configuración de n8n
-- [`CONFIGURACION_SUPABASE.md`](CONFIGURACION_SUPABASE.md) - Setup de Supabase
-- [`GUIA_SCRIPTS_SUPABASE.md`](GUIA_SCRIPTS_SUPABASE.md) - Scripts de base de datos
-
-## 🚀 Despliegue
-
-El proyecto está listo para desplegar en:
-- **Render** (recomendado)
-- **Railway**
-- **Vercel** (solo frontend)
-- **Heroku**
 
 Para producción, asegúrate de:
 1. Configurar las variables de entorno
@@ -178,25 +164,6 @@ Para producción, asegúrate de:
 3. Configurar CORS apropiadamente
 
 ## 📝 Changelog v2.0.0
-
-### Nuevas características
-- ✨ Rediseño completo de la landing page
-- ✨ Sistema de templates optimizado (3 en fila)
-- ✨ Modal de CV mejorado con comparación de puntajes
-- ✨ Modal de feedback y contacto con WhatsApp
-- ✨ Loading spinner en historial
-- ✨ Campos dinámicos de contacto (email/WhatsApp)
-
-### Mejoras
-- ⚡ Código limpio sin console.log de desarrollo
-- ⚡ Mejor manejo de errores en endpoints
-- ⚡ Optimización responsive para móviles
-- ⚡ Fix de error 404 en improved-status
-
-### Correcciones
-- 🐛 Arreglado bug de cvId incorrecto en checkImprovedCvStatus
-- 🐛 Corregido overflow del select en modal de feedback
-- 🐛 Ajustado scroll horizontal de templates en móvil
 
 ## 📄 Licencia
 
@@ -209,7 +176,6 @@ ISC License - Ver archivo [LICENSE](LICENSE)
 - 📧 Email: cacuna@unitru.edu.pe
 - 💼 LinkedIn: [@cesar-ac10](https://www.linkedin.com/in/cesar-ac10/)
 - 🐙 GitHub: [@Cesar-AC](https://github.com/Cesar-AC)
-- 📱 WhatsApp: [+51 962 557 528](https://wa.me/51962557528)
 
 ---
 
