@@ -35,10 +35,10 @@ function openImprovementModal() {
             }
         ];
     }
-    
+
     currentQuestionIndex = 0;
     answers = [];
-    
+
     document.getElementById('improvementModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
     showQuestion(currentQuestionIndex);
@@ -56,11 +56,11 @@ function showQuestion(index) {
         showCompletionMessage();
         return;
     }
-    
+
     const question = improvementQuestions[index];
     const totalQuestions = improvementQuestions.length;
     const progressPercent = ((index + 1) / totalQuestions) * 100;
-    
+
     // Actualizar elementos que existen en el HTML
     const progressText = document.getElementById('progressText');
     const totalQuestionsSpan = document.getElementById('totalQuestions');
@@ -69,7 +69,7 @@ function showQuestion(index) {
     const progressBar = document.getElementById('progressBar');
     const questionText = document.getElementById('questionText');
     const answerInput = document.getElementById('answerInput');
-    
+
     if (progressText) progressText.innerHTML = `Pregunta ${index + 1} de <span id="totalQuestions">${totalQuestions}</span>`;
     if (totalQuestionsSpan) totalQuestionsSpan.textContent = totalQuestions;
     if (questionNumber) questionNumber.textContent = index + 1;
@@ -81,7 +81,7 @@ function showQuestion(index) {
         answerInput.value = answers[index] || '';
         answerInput.focus();
     }
-    
+
     // Mostrar/ocultar botón anterior
     const prevButton = document.querySelector('.btn-prev-question');
     if (prevButton) {
@@ -92,12 +92,12 @@ function showQuestion(index) {
 // Siguiente pregunta
 function nextQuestion() {
     const answer = document.getElementById('answerInput').value.trim();
-    
+
     if (!answer) {
         alert('Por favor, responde la pregunta antes de continuar.');
         return;
     }
-    
+
     answers[currentQuestionIndex] = answer;
     currentQuestionIndex++;
     showQuestion(currentQuestionIndex);
@@ -122,11 +122,11 @@ function skipQuestion() {
 function showCompletionMessage() {
     const questionContainer = document.querySelector('.question-container');
     const progressSection = document.querySelector('.progress-bar');
-    
+
     if (progressSection) progressSection.style.display = 'none';
-    
+
     if (!questionContainer) return;
-    
+
     questionContainer.innerHTML = `
         <div class="completion-message">
             <div class="success-icon">
@@ -211,7 +211,7 @@ function showCompletionMessage() {
             </button>
         </div>
     `;
-    
+
     // Ocultar hint de scroll en desktop
     const checkScrollHint = () => {
         const wrapper = document.querySelector('.template-selection-wrapper');
@@ -227,12 +227,12 @@ function showCompletionMessage() {
 // Seleccionar plantilla
 function selectTemplate(template) {
     selectedTemplate = template;
-    
+
     // Actualizar visualización
     document.querySelectorAll('.template-card').forEach(card => {
         card.classList.remove('selected');
     });
-    
+
     event.currentTarget.classList.add('selected');
     document.getElementById('continueTemplateBtn').disabled = false;
 }
@@ -243,7 +243,7 @@ function confirmTemplateSelection() {
         alert('Por favor, selecciona una plantilla.');
         return;
     }
-    
+
     // Mostrar modal de confirmación
     const questionContainer = document.querySelector('.question-container');
     questionContainer.innerHTML = `
@@ -264,14 +264,14 @@ async function startGeneration() {
     try {
         closeImprovementModal();
         showProgressModal();
-        
+
         const token = getAuthToken();
         const cvId = getCvIdFromURL();
-        
+
         if (!token) {
             throw new Error('No se encontró el token de autenticación');
         }
-        
+
         // Preparar respuestas en el formato que espera el backend (igual al que se guarda en la BD)
         const answersArray = improvementQuestions.map((q, index) => ({
             seccion: q.seccion,
@@ -279,7 +279,7 @@ async function startGeneration() {
             respuesta: answers[index] || null,
             omitida: !answers[index] || answers[index].trim() === ''
         }));
-        
+
         // Guardar respuestas
         const answersResponse = await fetch(`${API_BASE_URL}/files/${cvId}/improvement-answers`, {
             method: 'POST',
@@ -292,17 +292,17 @@ async function startGeneration() {
                 timestamp: new Date().toISOString()
             })
         });
-        
+
         if (!answersResponse.ok) {
             const errorData = await answersResponse.json();
             console.error('❌ Error al guardar respuestas:', errorData);
             throw new Error(errorData.message || 'Error al guardar las respuestas');
         }
-        
+
         const answersResult = await answersResponse.json();
-        
+
         // Generar CV mejorado (el backend usa las respuestas ya guardadas + la plantilla)
-        
+
         const generateResponse = await fetch(`${API_BASE_URL}/files/${cvId}/generate-improved`, {
             method: 'POST',
             headers: {
@@ -313,18 +313,18 @@ async function startGeneration() {
                 template: selectedTemplate
             })
         });
-        
+
         if (!generateResponse.ok) {
             const errorData = await generateResponse.json();
             console.error('❌ Error al generar CV:', errorData);
             throw new Error(errorData.message || 'Error al iniciar la generación del CV');
         }
-        
+
         const generateResult = await generateResponse.json();
-        
+
         // Iniciar polling para verificar el estado
         startPolling();
-        
+
     } catch (error) {
         console.error('❌ Error en generación:', error);
         alert('Error al generar el CV mejorado:\n\n' + error.message);
@@ -347,158 +347,53 @@ function closeProgressModal() {
 // Iniciar polling para verificar estado
 function startPolling() {
     pollingAttempts = 0;
-    
+
     pollingInterval = setInterval(async () => {
         pollingAttempts++;
-        
+
         if (pollingAttempts >= MAX_POLLING_ATTEMPTS) {
             clearInterval(pollingInterval);
             closeProgressModal();
             alert('El proceso está tomando más tiempo de lo esperado. Por favor, verifica el estado más tarde.');
             return;
         }
-        
+
         try {
             const token = getAuthToken();
             const cvId = getCvIdFromURL();
-            
+
             const response = await fetch(`${API_BASE_URL}/files/${cvId}/improved-status`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            
+
             if (!response.ok) {
                 throw new Error('Error al verificar el estado');
             }
-            
+
             const data = await response.json();
-            
+
             if (data.status === 'completed') {
                 clearInterval(pollingInterval);
                 closeProgressModal();
-                showSuccessModal(data);
+                // Usar el modal estandarizado en lugar del modal con estilos en línea
+                if (typeof window.openImprovedResultsModal === 'function') {
+                    window.openImprovedResultsModal(cvId);
+                } else {
+                    console.error('openImprovedResultsModal no está disponible');
+                    alert('CV Mejorado generado con éxito. Por favor recarga la página para ver los resultados.');
+                }
             } else if (data.status === 'failed') {
                 clearInterval(pollingInterval);
                 closeProgressModal();
                 alert('Error al generar el CV mejorado: ' + (data.error || 'Error desconocido'));
             }
-            
+
         } catch (error) {
             console.error('Error en polling:', error);
         }
     }, 5000); // Cada 5 segundos
-}
-
-// Mostrar modal de éxito
-function showSuccessModal(result) {
-    const processingTime = formatProcessingTime(result.processing_time || result.improvement_processing_time_seconds || 0);
-    const template = (result.selected_template || result.template || 'Estándar').toUpperCase();
-    
-    const successHTML = `
-        <div class="success-modal-overlay" id="successModalOverlay" style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        ">
-            <div class="success-modal-content" style="
-                background: white;
-                border-radius: 16px;
-                padding: 3rem;
-                max-width: 500px;
-                text-align: center;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            ">
-                <div class="success-header">
-                    <i class="fas fa-check-circle" style="font-size: 5rem; color: #10b981; margin-bottom: 1.5rem;"></i>
-                    <h2 style="color: #1f2937; font-size: 1.8rem; margin-bottom: 1rem;">¡CV Mejorado Generado con Éxito!</h2>
-                </div>
-                
-                <div class="success-body" style="margin: 2rem 0;">
-                    <div class="success-info" style="background: #f3f4f6; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                            <i class="fas fa-file-pdf" style="color: #667eea;"></i>
-                            <span style="color: #4b5563;"><strong>Plantilla:</strong> ${template}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="success-actions" style="display: flex; flex-direction: column; gap: 1rem;">
-                        <button onclick="downloadImprovedCV()" style="
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                            color: white;
-                            border: none;
-                            padding: 1rem 2rem;
-                            border-radius: 8px;
-                            font-size: 1.1rem;
-                            font-weight: 600;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 0.5rem;
-                            transition: all 0.3s ease;
-                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 25px rgba(102, 126, 234, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                            <i class="fas fa-download"></i>
-                            Descargar CV Mejorado
-                        </button>
-                        <button onclick="viewImprovedData()" style="
-                            background: white;
-                            color: #667eea;
-                            border: 2px solid #667eea;
-                            padding: 1rem 2rem;
-                            border-radius: 8px;
-                            font-size: 1.1rem;
-                            font-weight: 600;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 0.5rem;
-                            transition: all 0.3s ease;
-                        " onmouseover="this.style.background='#f3f4f6';" onmouseout="this.style.background='white';">
-                            <i class="fas fa-eye"></i>
-                            Ver Detalles
-                        </button>
-                    </div>
-                </div>
-                
-                <button onclick="closeSuccessModal()" style="
-                    background: #e5e7eb;
-                    color: #6b7280;
-                    border: none;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 8px;
-                    font-size: 1rem;
-                    font-weight: 500;
-                    cursor: pointer;
-                    margin-top: 1rem;
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.background='#d1d5db';" onmouseout="this.style.background='#e5e7eb';">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', successHTML);
-}
-
-// Cerrar modal de éxito
-function closeSuccessModal() {
-    const modal = document.getElementById('successModalOverlay');
-    if (modal) {
-        modal.remove();
-    }
-    closeProgressModal();
-    closeImprovementModal();
 }
 
 // Descargar CV mejorado
@@ -506,19 +401,19 @@ async function downloadImprovedCV() {
     try {
         const token = getAuthToken();
         const cvId = getCvIdFromURL();
-        
+
         const response = await fetch(`${API_BASE_URL}/files/${cvId}/improved-status`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-        
+
         if (!response.ok) {
             throw new Error('Error al obtener datos del CV mejorado');
         }
-        
+
         const data = await response.json();
-        
+
         if (data.improved_cv_url) {
             window.open(data.improved_cv_url, '_blank');
         } else {
@@ -532,8 +427,6 @@ async function downloadImprovedCV() {
 
 // Ver datos del CV mejorado
 function viewImprovedData() {
-    closeSuccessModal();
-    
     // Llamar a la función del módulo cv-improved-modal
     if (typeof window.openImprovedResultsModal === 'function') {
         window.openImprovedResultsModal();
@@ -544,7 +437,6 @@ function viewImprovedData() {
 }
 
 // Hacer funciones globales
-window.closeSuccessModal = closeSuccessModal;
 window.downloadImprovedCV = downloadImprovedCV;
 window.viewImprovedData = viewImprovedData;
 
@@ -555,20 +447,20 @@ function getCvIdFromURL() {
     // Intentar obtener del query string primero (?id=...)
     const urlParams = new URLSearchParams(window.location.search);
     const idFromQuery = urlParams.get('id');
-    
+
     if (idFromQuery) {
         return idFromQuery;
     }
-    
+
     // Si no está en query string, intentar obtener del path
     const pathParts = window.location.pathname.split('/');
     const idFromPath = pathParts[pathParts.length - 1].replace('.html', '');
-    
+
     // Validar que sea un UUID
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (uuidRegex.test(idFromPath)) {
         return idFromPath;
     }
-    
+
     return null;
 }
