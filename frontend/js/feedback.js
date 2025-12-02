@@ -121,7 +121,7 @@ function createFeedbackModal() {
     });
 
     // Manejar envío del formulario
-    document.getElementById('feedback-form').addEventListener('submit', function (e) {
+    document.getElementById('feedback-form').addEventListener('submit', async function (e) {
         e.preventDefault();
         const type = document.getElementById('feedback-type').value;
         const message = document.getElementById('feedback-message').value;
@@ -138,32 +138,66 @@ function createFeedbackModal() {
             return;
         }
 
-        // Simular envío
         const btn = this.querySelector('button[type="submit"]');
         const originalText = btn.innerHTML;
 
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
 
-        setTimeout(() => {
-            btn.innerHTML = '<i class="fas fa-check"></i> ¡Enviado!';
-            btn.classList.add('btn-success');
+        try {
+            // Enviar feedback al backend
+            const response = await fetch(`${window.API_URL || ''}/api/feedback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    type,
+                    message,
+                    email: email || null,
+                    whatsapp: whatsapp || null
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                btn.innerHTML = '<i class="fas fa-check"></i> ¡Enviado!';
+                btn.classList.add('btn-success');
+
+                setTimeout(() => {
+                    closeFeedbackModal();
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('btn-success');
+                    document.getElementById('feedback-form').reset();
+                    document.getElementById('contact-fields').classList.add('hidden');
+
+                    if (typeof showAlert === 'function') {
+                        showAlert('success', 'Gracias por tu feedback. Nos pondremos en contacto contigo pronto.', 'alert-container');
+                    } else {
+                        alert('Gracias por tu feedback. Nos pondremos en contacto contigo pronto.');
+                    }
+                }, 1500);
+            } else {
+                throw new Error(result.message || 'Error al enviar feedback');
+            }
+        } catch (error) {
+            btn.innerHTML = '<i class="fas fa-times"></i> Error';
+            btn.classList.add('btn-danger');
 
             setTimeout(() => {
-                closeFeedbackModal();
                 btn.disabled = false;
                 btn.innerHTML = originalText;
-                btn.classList.remove('btn-success');
-                document.getElementById('feedback-form').reset();
+                btn.classList.remove('btn-danger');
+            }, 2000);
 
-                // Mostrar alerta de éxito en la página principal si existe el contenedor
-                if (typeof showAlert === 'function') {
-                    showAlert('success', 'Gracias por tu feedback. Nos pondremos en contacto contigo pronto.', 'alert-container');
-                } else {
-                    alert('Gracias por tu feedback. Nos pondremos en contacto contigo pronto.');
-                }
-            }, 1500);
-        }, 1500);
+            if (typeof showAlert === 'function') {
+                showAlert('error', 'No se pudo enviar el mensaje. Por favor, intenta de nuevo.', 'alert-container');
+            } else {
+                alert('No se pudo enviar el mensaje. Por favor, intenta de nuevo.');
+            }
+        }
     });
 }
 

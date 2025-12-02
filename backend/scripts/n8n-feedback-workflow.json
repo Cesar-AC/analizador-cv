@@ -1,0 +1,78 @@
+{
+  "name": "AutoCV - Feedback Email Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "feedback-email",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "cacuna@unitru.edu.pe",
+        "subject": "=🔔 Nuevo Feedback - AutoCV IA [{{ $json.type }}]",
+        "message": "=<h2>📬 Nuevo Feedback Recibido</h2>\n<hr>\n<p><strong>📌 Tipo:</strong> {{ $json.type }}</p>\n<p><strong>💬 Mensaje:</strong></p>\n<blockquote>{{ $json.message }}</blockquote>\n<hr>\n<h3>📞 Datos de Contacto</h3>\n<p><strong>📧 Email:</strong> {{ $json.email || 'No proporcionado' }}</p>\n<p><strong>📱 WhatsApp:</strong> {{ $json.whatsapp || 'No proporcionado' }}</p>\n<hr>\n<p><small>📅 Fecha: {{ $now.format('DD/MM/YYYY HH:mm') }}</small></p>\n<p><small>🤖 Enviado automáticamente desde AutoCV IA</small></p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "gmail-node",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [500, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Email enviado correctamente\" } }}"
+      },
+      "id": "response-node",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [750, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": [],
+  "pinData": {}
+}

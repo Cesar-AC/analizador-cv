@@ -97,6 +97,57 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...tu_key_aqui
 | **Control** | ✅ Total | ⚠️ Limitado |
 | **Backup** | ✅ En Git | ❌ No |
 
+## 📧 Configuración de n8n para Feedback por Email (Gmail)
+
+### n8n-feedback-workflow.json
+
+Este archivo contiene el workflow de n8n para enviar notificaciones por **Gmail** cuando un usuario envía feedback.
+
+**Pasos para configurar:**
+
+1. **Importa el workflow en n8n**:
+   - Abre tu instancia de n8n
+   - Ve a **Workflows** → **Import from File**
+   - Selecciona `n8n-feedback-workflow.json`
+
+2. **Configura las credenciales de Gmail**:
+   - Ve al nodo **Gmail** (el del centro)
+   - Click en **Create New Credential**
+   - Selecciona **Gmail OAuth2**
+   - Sigue los pasos para conectar tu cuenta de Gmail:
+     1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
+     2. Crea un proyecto o usa uno existente
+     3. Habilita la **Gmail API**
+     4. Crea credenciales OAuth 2.0
+     5. Copia el **Client ID** y **Client Secret** en n8n
+     6. Autoriza el acceso a tu cuenta Gmail
+
+3. **Verifica el destinatario**:
+   - El email se enviará a: `cacuna@unitru.edu.pe`
+   - Puedes cambiarlo en el campo "To" del nodo Gmail
+
+4. **Activa el workflow**:
+   - Click en el toggle de **Active**
+   - El webhook estará disponible en: `https://tu-n8n.com/webhook/feedback-email`
+
+5. **Configura la variable de entorno**:
+   ```env
+   N8N_FEEDBACK_WEBHOOK_URL=https://tu-n8n.com/webhook/feedback-email
+   ```
+
+**Estructura del payload que recibe:**
+```json
+{
+  "type": "suggestion|bug|contact|other",
+  "message": "Texto del feedback",
+  "email": "usuario@email.com",
+  "whatsapp": "51987654321",
+  "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
+
+---
+
 ## 📦 Storage (Bucket de CVs)
 
 **Nota**: El bucket de Storage (`cv`) aún debe crearse manualmente desde el dashboard porque Supabase no expone API pública para crear buckets desde código sin usar Management API.

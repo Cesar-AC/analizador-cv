@@ -1009,4 +1009,81 @@ router.get('/files/:id/improved-status', verifyAuth, async (req, res) => {
   }
 });
 
+// ============================================================================
+// ENDPOINT: Enviar feedback por email via n8n
+// ============================================================================
+router.post('/feedback', async (req, res) => {
+  try {
+    const { type, message, email, whatsapp } = req.body;
+
+    // Validar datos requeridos
+    if (!type || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tipo y mensaje son requeridos'
+      });
+    }
+
+    // Mapear tipo a etiqueta legible
+    const typeLabels = {
+      'suggestion': '💡 Sugerencia',
+      'bug': '🐛 Reporte de Error',
+      'contact': '📞 Contacto Directo',
+      'other': '📝 Otro'
+    };
+
+    const feedbackData = {
+      type: typeLabels[type] || type,
+      typeCode: type,
+      message: message,
+      userEmail: email || 'No proporcionado',
+      userWhatsapp: whatsapp ? `+${whatsapp}` : 'No proporcionado',
+      timestamp: new Date().toISOString(),
+      dateFormatted: new Date().toLocaleString('es-PE', {
+        dateStyle: 'full',
+        timeStyle: 'short',
+        timeZone: 'America/Lima'
+      })
+    };
+
+    // Enviar a n8n webhook para procesar el email
+    const n8nFeedbackUrl = process.env.N8N_FEEDBACK_WEBHOOK_URL;
+    
+    console.log('📧 Enviando feedback a:', n8nFeedbackUrl);
+    console.log('📧 Datos:', JSON.stringify(feedbackData, null, 2));
+    
+    if (n8nFeedbackUrl) {
+      const response = await fetch(n8nFeedbackUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(feedbackData)
+      });
+
+      console.log('📧 Respuesta de n8n:', response.status, response.statusText);
+
+      if (!response.ok) {
+        throw new Error('Error al enviar feedback a n8n');
+      }
+    } else {
+      // Si no hay webhook configurado, solo logueamos
+      console.log('📧 Feedback recibido (n8n no configurado):', feedbackData);
+    }
+
+    res.json({
+      success: true,
+      message: 'Feedback enviado correctamente'
+    });
+
+  } catch (error) {
+    console.error('❌ Error en POST /feedback:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al enviar feedback',
+      error: error.message
+    });
+  }
+});
+
 export default router;

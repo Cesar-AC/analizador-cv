@@ -126,12 +126,12 @@ npm install
 # 3. Crear archivo de configuración
 cp backend/.env.example backend/.env
 
-# 4. Configurar variables de entorno en .env:
+# 4. Configurar variables de entorno en .env:@
 #    - SUPABASE_URL
 #    - SUPABASE_ANON_KEY
 #    - SUPABASE_SERVICE_ROLE_KEY
 #    - N8N_WEBHOOK_URL
-#    - N8N_IMPROVE_WEBHOOK_URL
+#    - N8N_IMPROVE_WEBHOOK_URL@
 
 # 5. Ejecutar scripts SQL en Supabase (ver /backend/scripts/)
 
