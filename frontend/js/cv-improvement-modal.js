@@ -42,6 +42,9 @@ function openImprovementModal() {
     document.getElementById('improvementModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
     showQuestion(currentQuestionIndex);
+
+    // Cargar PDF del CV original
+    loadPdfViewer();
 }
 
 // Cerrar modal

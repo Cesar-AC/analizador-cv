@@ -776,6 +776,206 @@ p {
 }
 
 /* ===========================
+   ENHANCED ANIMATIONS
+   =========================== */
+
+/* Scroll reveal animations */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-on-scroll.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger animation delays */
+.feature-card:nth-child(1) {
+  transition-delay: 0.1s;
+}
+
+.feature-card:nth-child(2) {
+  transition-delay: 0.2s;
+}
+
+.feature-card:nth-child(3) {
+  transition-delay: 0.3s;
+}
+
+.step-card:nth-child(1) {
+  transition-delay: 0.1s;
+}
+
+.step-card:nth-child(2) {
+  transition-delay: 0.2s;
+}
+
+.step-card:nth-child(3) {
+  transition-delay: 0.3s;
+}
+
+.benefit-card:nth-child(1) {
+  transition-delay: 0.05s;
+}
+
+.benefit-card:nth-child(2) {
+  transition-delay: 0.1s;
+}
+
+.benefit-card:nth-child(3) {
+  transition-delay: 0.15s;
+}
+
+.benefit-card:nth-child(4) {
+  transition-delay: 0.2s;
+}
+
+.benefit-card:nth-child(5) {
+  transition-delay: 0.25s;
+}
+
+.benefit-card:nth-child(6) {
+  transition-delay: 0.3s;
+}
+
+/* Floating particles */
+.particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  background: var(--green);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: float linear infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.3;
+  }
+
+  90% {
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Gradient animation for buttons */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--green) 0%, var(--primary-dark) 100%);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.2), transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
+}
+
+/* Pulse animation for CTAs */
+@keyframes pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(100, 255, 218, 0.7);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(100, 255, 218, 0);
+  }
+}
+
+.btn-primary:hover {
+  animation: pulse 2s infinite;
+}
+
+/* Shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.feature-card::after,
+.benefit-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 3s infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-card:hover::after,
+.benefit-card:hover::after {
+  opacity: 1;
+}
+
+/* Glow effect on hover */
+.step-number {
+  position: relative;
+}
+
+.step-number::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--green);
+  opacity: 0;
+  filter: blur(20px);
+  transition: opacity 0.3s ease;
+}
+
+.step-card:hover .step-number::after {
+  opacity: 0.5;
+}
+
+/* ===========================
    PROFILE PAGE STYLES
    =========================== */
 .profile-container {
@@ -3359,6 +3559,163 @@ p {
 }
 
 /* ===========================
+   TESTIMONIALS SECTION
+   =========================== */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.testimonial-card {
+  background: var(--light-navy);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  border: 1px solid var(--lightest-navy);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--green);
+  box-shadow: var(--shadow-lg);
+}
+
+.testimonial-stars {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  color: var(--green);
+  font-size: 1rem;
+}
+
+.testimonial-text {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+  flex-grow: 1;
+}
+
+.testimonial-author {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--lightest-navy);
+}
+
+.testimonial-author strong {
+  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.testimonial-author span {
+  color: var(--slate);
+  font-size: 0.9rem;
+}
+
+/* ===========================
+   FAQ SECTION
+   =========================== */
+.faq-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: var(--light-navy);
+  border: 1px solid var(--lightest-navy);
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.faq-item:hover {
+  border-color: var(--green);
+}
+
+.faq-question {
+  padding: 1.5rem 2rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition);
+  user-select: none;
+}
+
+.faq-question:hover {
+  background: var(--lightest-navy);
+}
+
+.faq-question h3 {
+  color: var(--text-main);
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.faq-question i {
+  color: var(--green);
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.faq-item.active .faq-question i {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.faq-item.active .faq-answer {
+  max-height: 500px;
+  padding: 0 2rem 1.5rem;
+}
+
+.faq-answer p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ===========================
+   RESPONSIVE ADJUSTMENTS
+   =========================== */
+@media (max-width: 768px) {
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .faq-question {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .faq-question h3 {
+    font-size: 1rem;
+  }
+
+  .faq-item.active .faq-answer {
+    padding: 0 1.5rem 1.25rem;
+  }
+}
+
+
+/* ===========================
    FEEDBACK MODAL - MOBILE FIXES
    =========================== */
 
@@ -3382,7 +3739,7 @@ p {
     overflow-y: auto;
     margin: 1rem;
   }
-  
+
   .feedback-modal .modal-header {
     padding: 1rem;
     position: sticky;
@@ -3390,82 +3747,83 @@ p {
     background: var(--light-navy);
     z-index: 10;
   }
-  
+
   .feedback-modal .modal-header h2 {
     font-size: 1.1rem;
   }
-  
+
   .feedback-modal .modal-body {
     padding: 1rem;
   }
-  
+
   .feedback-grid {
     gap: 1.25rem;
   }
-  
+
   .creator-info {
     padding: 1rem;
   }
-  
+
   .creator-info h3 {
     font-size: 1rem;
     margin-bottom: 1rem;
   }
-  
+
   .creator-profile {
     margin-bottom: 1rem;
   }
-  
+
   .creator-avatar {
     width: 45px;
     height: 45px;
   }
-  
+
   .creator-avatar i {
     font-size: 1.1rem;
   }
-  
+
   .creator-details h4 {
     font-size: 1rem;
   }
-  
+
   .creator-details p {
     font-size: 0.8rem;
   }
-  
+
   .contact-links {
     gap: 0.4rem;
   }
-  
+
   .contact-link {
     font-size: 0.85rem;
     padding: 0.35rem 0.5rem;
   }
-  
+
   .feedback-form-container h3 {
     font-size: 1rem;
     margin-bottom: 1rem;
   }
-  
+
   .feedback-form-container select,
   .feedback-form-container textarea {
-    font-size: 16px; /* Evita zoom en iOS */
+    font-size: 16px;
+    /* Evita zoom en iOS */
     padding: 0.75rem;
   }
-  
+
   .feedback-form-container textarea {
     min-height: 80px;
   }
-  
+
   .feedback-form-container .form-group {
     margin-bottom: 0.875rem;
   }
-  
+
   .feedback-form-container .form-group label {
     font-size: 0.9rem;
     margin-bottom: 0.35rem;
   }
-  
+
   .feedback-form-container .btn {
     padding: 0.75rem 1.25rem;
     font-size: 0.9rem;
@@ -3545,15 +3903,16 @@ p {
     padding: 0.6rem 0.4rem 0.6rem 0.75rem;
     font-size: 0.95rem;
   }
-  
+
   .whatsapp-input-group input {
-    font-size: 16px; /* Evita zoom iOS */
+    font-size: 16px;
+    /* Evita zoom iOS */
   }
-  
+
   .input-hint {
     font-size: 0.7rem;
   }
-  
+
   .contact-extra-fields .form-group {
     margin-bottom: 0.75rem;
   }

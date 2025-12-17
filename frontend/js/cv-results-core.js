@@ -1,7 +1,7 @@
-/**
+﻿/**
  * ============================================
  * CV Results - Core JavaScript
- * Funcionalidad principal para visualización de resultados
+ * Funcionalidad principal para visualizaciÃ³n de resultados
  * ============================================
  */
 
@@ -19,9 +19,9 @@ let pollingAttempts = 0;
 const MAX_POLLING_ATTEMPTS = 60;
 let improvedCvData = null;
 
-// Validación inicial
+// ValidaciÃ³n inicial
 if (!cvId) {
-    alert('No se especificó un CV para mostrar');
+    alert('No se especificÃ³ un CV para mostrar');
     window.location.href = 'dashboard.html';
 }
 
@@ -35,7 +35,7 @@ function getCvIdFromURL() {
         return idFromQuery;
     }
 
-    // Si no está en query string, intentar obtener del path (/cv-results/uuid)
+    // Si no estÃ¡ en query string, intentar obtener del path (/cv-results/uuid)
     const pathParts = window.location.pathname.split('/');
     const idFromPath = pathParts[pathParts.length - 1].replace('.html', '');
 
@@ -62,7 +62,7 @@ function formatLabel(key) {
 // Helper: Formatear tiempo de procesamiento
 function formatProcessingTime(seconds) {
     if (seconds > 31536000) {
-        return 'Error en cálculo';
+        return 'Error en cÃ¡lculo';
     }
 
     if (seconds < 60) {
@@ -82,14 +82,14 @@ function formatProcessingTime(seconds) {
     }
 }
 
-// Cargar resultados del análisis
+// Cargar resultados del anÃ¡lisis
 async function loadResults() {
     try {
         const token = getAuthToken();
         const userInfo = getUserInfo();
 
         if (!token) {
-            alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
+            alert('SesiÃ³n expirada. Por favor, inicia sesiÃ³n nuevamente.');
             window.location.href = '/';
             return;
         }
@@ -112,7 +112,7 @@ async function loadResults() {
         const cv = data.file;
 
         if (!cv.analysis_result || cv.analysis_result === null) {
-            alert('Este CV aún no ha sido analizado o está en proceso.');
+            alert('Este CV aÃºn no ha sido analizado o estÃ¡ en proceso.');
             window.location.href = isAdmin ? 'admin.html' : 'dashboard.html';
             return;
         }
@@ -132,10 +132,10 @@ async function loadResults() {
     }
 }
 
-// Mostrar resultados del análisis
+// Mostrar resultados del anÃ¡lisis
 function displayResults(cv, isAdmin) {
     try {
-        // Configurar botones de navegación
+        // Configurar botones de navegaciÃ³n
         const backButton = document.getElementById('backButton');
         const switchViewButton = document.getElementById('switchViewButton');
         const backText = document.getElementById('backText');
@@ -170,7 +170,7 @@ function displayResults(cv, isAdmin) {
         window.cvAnalysisData = analysis;
 
         if (!analysis || !analysis.meta) {
-            throw new Error('Formato de análisis inválido');
+            throw new Error('Formato de anÃ¡lisis invÃ¡lido');
         }
 
         // Puntaje total
@@ -187,7 +187,7 @@ function displayResults(cv, isAdmin) {
             }
         }
 
-        // Detalles de puntuación
+        // Detalles de puntuaciÃ³n
         const detailScores = document.getElementById('detailScores');
         const details = analysis.meta.detalle;
         if (detailScores && details) {
@@ -199,7 +199,7 @@ function displayResults(cv, isAdmin) {
             `).join('');
         }
 
-        // Crear gráficos
+        // Crear grÃ¡ficos
         if (details) {
             createCategoryChart(details);
             createDoughnutChart(details, analysis.meta.puntaje_total);
@@ -241,7 +241,7 @@ function displayResults(cv, isAdmin) {
     }
 }
 
-// Crear gráfico de categorías
+// Crear grÃ¡fico de categorÃ­as
 function createCategoryChart(details) {
     const ctx = document.getElementById('categoryChart').getContext('2d');
 
@@ -252,7 +252,7 @@ function createCategoryChart(details) {
         data: {
             labels: Object.keys(details).map(formatLabel),
             datasets: [{
-                label: 'Puntuación',
+                label: 'PuntuaciÃ³n',
                 data: Object.values(details),
                 backgroundColor: [
                     'rgba(100, 255, 218, 0.8)',  // Green
@@ -302,7 +302,7 @@ function createCategoryChart(details) {
     });
 }
 
-// Crear gráfico circular
+// Crear grÃ¡fico circular
 function createDoughnutChart(details, totalScore) {
     const ctx = document.getElementById('doughnutChart').getContext('2d');
 
@@ -316,7 +316,7 @@ function createDoughnutChart(details, totalScore) {
     window.doughnutChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Puntuación Obtenida', 'Margen de Mejora'],
+            labels: ['PuntuaciÃ³n Obtenida', 'Margen de Mejora'],
             datasets: [{
                 data: [avgScore, remaining],
                 backgroundColor: [
@@ -374,7 +374,7 @@ async function checkImprovedCvStatus() {
             const data = await response.json();
 
             if (data.status === 'completed' && data.improved_cv_url) {
-                // Agregar notificación visual si existe la función
+                // Agregar notificaciÃ³n visual si existe la funciÃ³n
                 if (typeof addImprovedNotification === 'function') {
                     addImprovedNotification();
                 }
@@ -389,7 +389,7 @@ async function checkImprovedCvStatus() {
 document.addEventListener('DOMContentLoaded', () => {
     loadResults();
 
-    // Verificar si se debe abrir el modal del CV mejorado automáticamente
+    // Verificar si se debe abrir el modal del CV mejorado automÃ¡ticamente
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('openImproved') === 'true') {
         setTimeout(() => {
@@ -410,3 +410,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Función de logout
+function logout() {
+    if (confirm('¿Estas seguro de que deseas cerrar sesion?')) {
+        clearAuthToken();
+        window.location.href = '/';
+    }
+}

@@ -30,16 +30,18 @@
 .modal-content-improvement {
     position: relative;
     background: var(--light-navy);
-    margin: 5% auto;
+    margin: 3% auto;
     padding: 0;
-    width: 90%;
-    max-width: 700px;
+    width: 95%;
+    max-width: 1400px;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-xl);
     animation: slideDown 0.4s ease;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 92vh;
+    overflow: hidden;
     border: 1px solid var(--lightest-navy);
+    display: flex;
+    flex-direction: column;
 }
 
 @keyframes slideDown {
@@ -384,8 +386,15 @@
 }
 
 @keyframes fadeInOut {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 0.8; }
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
 }
 
 /* Selección de plantillas - 3 en fila */
@@ -719,35 +728,35 @@
         margin: 0 -1rem;
         padding: 0 1rem;
     }
-    
+
     .template-selection {
         padding: 0.5rem 0.25rem;
     }
-    
+
     .template-card {
         flex: 0 0 140px;
         min-width: 140px;
     }
-    
+
     .template-preview {
         height: 120px;
         padding: 0.75rem;
     }
-    
+
     .template-mockup {
         width: 70px;
         height: 95px;
         padding: 6px;
     }
-    
+
     .scroll-hint {
         display: flex;
     }
-    
+
     .completion-message h3 {
         font-size: 1.25rem;
     }
-    
+
     .subtitle-completion {
         font-size: 0.9rem;
     }
@@ -760,16 +769,16 @@
         display: flex;
         justify-content: center;
     }
-    
+
     .template-selection {
         justify-content: center;
     }
-    
+
     .template-card {
         flex: 0 0 180px;
         min-width: 180px;
     }
-    
+
     .scroll-hint {
         display: none !important;
     }
@@ -781,26 +790,219 @@
         flex: 0 0 200px;
         min-width: 200px;
     }
-    
+
     .template-preview {
         height: 160px;
     }
-    
+
     .template-mockup {
         width: 90px;
         height: 120px;
         padding: 10px;
     }
-    
+
     .template-info {
         padding: 1rem;
     }
-    
+
     .template-info h4 {
         font-size: 1.1rem;
     }
-    
+
     .template-category {
         font-size: 0.75rem;
+    }
+}
+
+/* ===========================
+   PDF VIEWER & SPLIT LAYOUT
+   =========================== */
+
+/* Split Layout Container */
+.modal-split-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Form left, PDF right */
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* PDF Viewer Container */
+.pdf-viewer-container {
+    background: var(--navy);
+    border-left: 1px solid var(--lightest-navy);
+    /* Changed from border-right */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.pdf-viewer-header {
+    background: var(--lightest-navy);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--lightest-navy);
+    flex-shrink: 0;
+}
+
+.pdf-viewer-header i {
+    color: var(--green);
+    font-size: 1.25rem;
+}
+
+.pdf-viewer-header span {
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.pdf-viewer-content {
+    flex: 1;
+    position: relative;
+    overflow: auto;
+    background: var(--navy);
+}
+
+.pdf-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.pdf-loading i {
+    font-size: 3rem;
+    color: var(--green);
+    margin-bottom: 1rem;
+}
+
+.pdf-loading p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+#pdfFrame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: white;
+}
+
+/* Form Container */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.form-container .question-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+    min-height: 0;
+}
+
+.modal-split-layout .question-container {
+    min-height: auto;
+}
+
+/* ===========================
+   RESPONSIVE - SPLIT LAYOUT
+   =========================== */
+
+@media (max-width: 968px) {
+    .modal-split-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 300px;
+        /* Form top, PDF bottom */
+    }
+
+    .pdf-viewer-container {
+        border-left: none;
+        border-top: 1px solid var(--lightest-navy);
+    }
+
+    .modal-content-improvement {
+        width: 95%;
+        max-width: 700px;
+        margin: 2% auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .modal-split-layout {
+        grid-template-rows: 1fr 250px;
+        /* Form top, PDF bottom */
+    }
+
+    .pdf-viewer-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .pdf-viewer-header span {
+        font-size: 0.9rem;
+    }
+
+    .form-container .question-container {
+        padding: 1.5rem 1rem;
+    }
+
+    .modal-content-improvement {
+        width: 100%;
+        margin: 0;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .modal-header-improvement {
+        padding: 1.5rem 1rem;
+    }
+
+    .modal-header-improvement h2 {
+        font-size: 1.3rem;
+    }
+
+    .modal-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .modal-tips {
+        padding: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .modal-tips p {
+        font-size: 0.85rem;
+    }
+
+    .progress-bar {
+        margin: 1.5rem 1rem 0.75rem;
+    }
+
+    .question-text {
+        font-size: 1.05rem;
+    }
+
+    .answer-input {
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .btn-skip,
+    .btn-next {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (min-width: 1400px) {
+    .modal-split-layout {
+        grid-template-columns: 1.2fr 1fr;
     }
 }
